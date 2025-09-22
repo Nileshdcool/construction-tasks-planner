@@ -1,11 +1,93 @@
-import React from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useCurrentUser } from '../store/authStore';
 import { Navigation } from './Navigation';
 import RxDBDataViewer from './RxDBDataViewer';
+import { useTaskStore, useUserTasks } from '../store/taskStore';
 
 export const Dashboard: React.FC = () => {
   const currentUser = useCurrentUser();
+  const tasks = useUserTasks();
+  const loadUserTasks = useTaskStore(s => s.loadUserTasks);
+  const checklistItems = useTaskStore(s => s.checklistItems);
+
+  // Ensure tasks are loaded when arriving at dashboard
+  useEffect(() => {
+    if (currentUser && tasks.length === 0) {
+      loadUserTasks(currentUser.id);
+    }
+  }, [currentUser, tasks.length, loadUserTasks]);
+
+  // Derive analytics metrics
+  const analytics = useMemo(() => {
+    const total = tasks.length;
+    const byStatus = {
+      'not-started': 0,
+      'in-progress': 0,
+      'blocked': 0,
+      'final-check': 0,
+      'done': 0,
+    } as Record<string, number>;
+    tasks.forEach(t => { byStatus[t.status] = (byStatus[t.status] || 0) + 1; });
+
+    const completed = byStatus['done'] || 0;
+    const inProgress = byStatus['in-progress'] || 0;
+    const blocked = byStatus['blocked'] || 0;
+    const finalCheck = byStatus['final-check'] || 0;
+    const notStarted = byStatus['not-started'] || 0;
+    const completionPct = total ? Math.round((completed / total) * 100) : 0;
+
+    // Checklist analytics (only based on items loaded in store)
+    const totalChecklistItems = checklistItems.length;
+    const completedChecklistItems = checklistItems.filter(i => i.completed).length;
+    const checklistCompletionPct = totalChecklistItems ? Math.round((completedChecklistItems / totalChecklistItems) * 100) : 0;
+
+    // Average checklist completion per task (only tasks that have items loaded)
+    const checklistByTask: Record<string, { total: number; done: number; }> = {};
+    checklistItems.forEach(item => {
+      if (!checklistByTask[item.taskId]) {
+        checklistByTask[item.taskId] = { total: 0, done: 0 };
+      }
+      const bucket = checklistByTask[item.taskId]!;
+      bucket.total += 1;
+      if (item.completed) bucket.done += 1;
+    });
+    const checklistTaskIds = Object.keys(checklistByTask);
+    const avgChecklistCompletion = checklistTaskIds.length
+      ? Math.round(
+          (checklistTaskIds.reduce((acc, id) => {
+            const b = checklistByTask[id]!;
+            return acc + (b.done / b.total);
+          }, 0) / checklistTaskIds.length) * 100
+        )
+      : 0;
+
+    // Recently updated tasks (top 5)
+    const recentTasks = [...tasks]
+      .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+      .slice(0, 5);
+
+    // Tasks without checklist (among tasks loaded vs items grouped)
+    const tasksWithChecklist = new Set(checklistItems.map(ci => ci.taskId));
+    const tasksWithoutChecklist = tasks.filter(t => !tasksWithChecklist.has(t.id)).length;
+
+    return {
+      total,
+      byStatus,
+      completed,
+      inProgress,
+      blocked,
+      finalCheck,
+      notStarted,
+      completionPct,
+      totalChecklistItems,
+      completedChecklistItems,
+      checklistCompletionPct,
+      avgChecklistCompletion,
+      tasksWithoutChecklist,
+      recentTasks,
+    };
+  }, [tasks, checklistItems]);
 
   if (!currentUser) {
     return null; // This shouldn't happen if routing is set up correctly
@@ -104,7 +186,8 @@ export const Dashboard: React.FC = () => {
             </div>
 
             {/* Quick Stats Cards */}
-            <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+              {/* Completed */}
               <div className="bg-white rounded-lg shadow-cendas p-6 border border-cendas-neutral-200">
                 <div className="flex items-center">
                   <div className="w-10 h-10 bg-cendas-success-500 rounded-lg flex items-center justify-center">
@@ -113,12 +196,13 @@ export const Dashboard: React.FC = () => {
                     </svg>
                   </div>
                   <div className="ml-4">
-                    <p className="text-sm font-medium text-cendas-neutral-600">Tasks Completed</p>
-                    <p className="text-2xl font-bold text-cendas-neutral-900">0</p>
+                    <p className="text-xs font-medium text-cendas-neutral-600 uppercase tracking-wide">Completed</p>
+                    <p className="text-2xl font-bold text-cendas-neutral-900">{analytics.completed}</p>
+                    <p className="text-xs text-cendas-neutral-500">{analytics.completionPct}% of {analytics.total || 0}</p>
                   </div>
                 </div>
               </div>
-              
+              {/* In Progress */}
               <div className="bg-white rounded-lg shadow-cendas p-6 border border-cendas-neutral-200">
                 <div className="flex items-center">
                   <div className="w-10 h-10 bg-cendas-primary-500 rounded-lg flex items-center justify-center">
@@ -127,11 +211,118 @@ export const Dashboard: React.FC = () => {
                     </svg>
                   </div>
                   <div className="ml-4">
-                    <p className="text-sm font-medium text-cendas-neutral-600">In Progress</p>
-                    <p className="text-2xl font-bold text-cendas-neutral-900">0</p>
+                    <p className="text-xs font-medium text-cendas-neutral-600 uppercase tracking-wide">In Progress</p>
+                    <p className="text-2xl font-bold text-cendas-neutral-900">{analytics.inProgress}</p>
+                    <p className="text-xs text-cendas-neutral-500">Active tasks</p>
                   </div>
                 </div>
               </div>
+              {/* Blocked */}
+              <div className="bg-white rounded-lg shadow-cendas p-6 border border-cendas-neutral-200">
+                <div className="flex items-center">
+                  <div className="w-10 h-10 bg-cendas-danger-500 rounded-lg flex items-center justify-center">
+                    <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div className="ml-4">
+                    <p className="text-xs font-medium text-cendas-neutral-600 uppercase tracking-wide">Blocked</p>
+                    <p className="text-2xl font-bold text-cendas-neutral-900">{analytics.blocked}</p>
+                    <p className="text-xs text-cendas-neutral-500">Need attention</p>
+                  </div>
+                </div>
+              </div>
+              {/* Final Check */}
+              <div className="bg-white rounded-lg shadow-cendas p-6 border border-cendas-neutral-200">
+                <div className="flex items-center">
+                  <div className="w-10 h-10 bg-cendas-warning-400 rounded-lg flex items-center justify-center">
+                    <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <div className="ml-4">
+                    <p className="text-xs font-medium text-cendas-neutral-600 uppercase tracking-wide">Final Check</p>
+                    <p className="text-2xl font-bold text-cendas-neutral-900">{analytics.finalCheck}</p>
+                    <p className="text-xs text-cendas-neutral-500">Ready to verify</p>
+                  </div>
+                </div>
+              </div>
+              {/* Checklist Progress */}
+              <div className="bg-white rounded-lg shadow-cendas p-6 border border-cendas-neutral-200">
+                <div className="flex items-center">
+                  <div className="w-10 h-10 bg-cendas-secondary-500 rounded-lg flex items-center justify-center">
+                    <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7h18M3 12h18M3 17h18" />
+                    </svg>
+                  </div>
+                  <div className="ml-4">
+                    <p className="text-xs font-medium text-cendas-neutral-600 uppercase tracking-wide">Checklist</p>
+                    <p className="text-2xl font-bold text-cendas-neutral-900">{analytics.checklistCompletionPct}%</p>
+                    <p className="text-xs text-cendas-neutral-500">{analytics.completedChecklistItems}/{analytics.totalChecklistItems} items</p>
+                  </div>
+                </div>
+              </div>
+              {/* Tasks w/o Checklist */}
+              <div className="bg-white rounded-lg shadow-cendas p-6 border border-cendas-neutral-200">
+                <div className="flex items-center">
+                  <div className="w-10 h-10 bg-cendas-neutral-500 rounded-lg flex items-center justify-center">
+                    <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h10M4 18h10" />
+                    </svg>
+                  </div>
+                  <div className="ml-4">
+                    <p className="text-xs font-medium text-cendas-neutral-600 uppercase tracking-wide">No Checklist</p>
+                    <p className="text-2xl font-bold text-cendas-neutral-900">{analytics.tasksWithoutChecklist}</p>
+                    <p className="text-xs text-cendas-neutral-500">Of {analytics.total} tasks</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Status Distribution & Recent Activity */}
+          <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Distribution */}
+            <div className="bg-white rounded-lg shadow-cendas p-6 border border-cendas-neutral-200 lg:col-span-2">
+              <h3 className="text-sm font-semibold text-cendas-neutral-800 mb-4 tracking-wide uppercase">Task Status Distribution</h3>
+              <div className="space-y-4">
+                {[
+                  { label: 'Not Started', value: analytics.notStarted, color: 'bg-cendas-neutral-300' },
+                  { label: 'In Progress', value: analytics.inProgress, color: 'bg-cendas-primary-500' },
+                  { label: 'Blocked', value: analytics.blocked, color: 'bg-cendas-danger-500' },
+                  { label: 'Final Check', value: analytics.finalCheck, color: 'bg-cendas-warning-400' },
+                  { label: 'Done', value: analytics.completed, color: 'bg-cendas-success-500' },
+                ].map(row => {
+                  const pct = analytics.total ? Math.round((row.value / analytics.total) * 100) : 0;
+                  return (
+                    <div key={row.label} className="flex items-center">
+                      <div className="w-32 text-xs font-medium text-cendas-neutral-600">{row.label}</div>
+                      <div className="flex-1 h-3 bg-cendas-neutral-100 rounded-full overflow-hidden mr-3">
+                        <div className={`${row.color} h-full transition-all`} style={{ width: pct + '%' }} />
+                      </div>
+                      <div className="w-16 text-right text-xs text-cendas-neutral-500">{row.value} ({pct}%)</div>
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="mt-4 text-[11px] text-cendas-neutral-500">Checklist metrics reflect only tasks whose checklist items have been loaded in this session.</div>
+            </div>
+            {/* Recent Activity */}
+            <div className="bg-white rounded-lg shadow-cendas p-6 border border-cendas-neutral-200">
+              <h3 className="text-sm font-semibold text-cendas-neutral-800 mb-4 tracking-wide uppercase">Recent Activity</h3>
+              <ul className="space-y-3">
+                {analytics.recentTasks.length === 0 && (
+                  <li className="text-xs text-cendas-neutral-500">No tasks yet.</li>
+                )}
+                {analytics.recentTasks.map(task => (
+                  <li key={task.id} className="flex items-start justify-between">
+                    <div>
+                      <p className="text-xs font-medium text-cendas-neutral-800">{task.title}</p>
+                      <p className="text-[11px] text-cendas-neutral-500">{task.status} · {new Date(task.updatedAt).toLocaleDateString()} {new Date(task.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
 
