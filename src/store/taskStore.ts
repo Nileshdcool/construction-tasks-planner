@@ -1,0 +1,281 @@
+import { create } from 'zustand';
+import { 
+  createTask, 
+  getTasksByUserId, 
+  updateTaskStatus, 
+  deleteTask,
+  createChecklistItem,
+  getChecklistItemsByTaskId,
+  updateChecklistItemCompleted,
+  deleteChecklistItem
+} from '../db/database';
+
+// Types from task schema
+export type TaskStatus = 'not-started' | 'in-progress' | 'blocked' | 'final-check' | 'done';
+
+export interface ChecklistItem {
+  id: string;
+  taskId: string;
+  title: string;
+  completed: boolean;
+  order: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Task {
+  id: string;
+  title: string;
+  description?: string;
+  status: TaskStatus;
+  position?: { x: number; y: number };
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
+  checklist?: ChecklistItem[]; // Populated when needed
+}
+
+interface TaskState {
+  // State
+  tasks: Task[];
+  checklistItems: ChecklistItem[];
+  isLoading: boolean;
+  error: string | null;
+  
+  // Actions
+  loadUserTasks: (userId: string) => Promise<void>;
+  createNewTask: (taskData: {
+    title: string;
+    description?: string;
+    status?: TaskStatus;
+    position?: { x: number; y: number };
+    userId: string;
+  }) => Promise<Task | null>;
+  updateTask: (taskId: string, updates: {
+    title?: string;
+    description?: string;
+    status?: TaskStatus;
+    position?: { x: number; y: number };
+  }) => Promise<void>;
+  removeTask: (taskId: string) => Promise<void>;
+  
+  // Checklist actions
+  addChecklistItem: (taskId: string, title: string) => Promise<ChecklistItem | null>;
+  toggleChecklistItem: (itemId: string, completed: boolean) => Promise<void>;
+  removeChecklistItem: (itemId: string) => Promise<void>;
+  loadTaskChecklist: (taskId: string) => Promise<ChecklistItem[]>;
+  
+  // Utility actions
+  clearError: () => void;
+  resetTasks: () => void;
+}
+
+export const useTaskStore = create<TaskState>()(
+  // Temporarily disable persist to debug infinite loop
+  // persist(
+    (set, get) => ({
+      // Initial state
+      tasks: [],
+      checklistItems: [],
+      isLoading: false,
+      error: null,
+
+      // Load all tasks for a user
+      loadUserTasks: async (userId: string) => {
+        console.log('loadUserTasks called for userId:', userId);
+        set({ isLoading: true, error: null });
+        
+        try {
+          const taskDocs = await getTasksByUserId(userId);
+          const tasks = taskDocs.map(doc => doc.toJSON());
+          console.log('Loaded tasks:', tasks.length);
+          
+          set({ 
+            tasks, 
+            isLoading: false 
+          });
+        } catch (error) {
+          console.error('Error loading tasks:', error);
+          set({ 
+            error: error instanceof Error ? error.message : 'Failed to load tasks',
+            isLoading: false 
+          });
+        }
+      },
+
+      // Create a new task
+      createNewTask: async (taskData) => {
+        set({ isLoading: true, error: null });
+        
+        try {
+          const newTaskDoc = await createTask(taskData);
+          const newTask = newTaskDoc.toJSON();
+          
+          set(state => ({ 
+            tasks: [...state.tasks, newTask],
+            isLoading: false 
+          }));
+          
+          return newTask;
+        } catch (error) {
+          console.error('Error creating task:', error);
+          set({ 
+            error: error instanceof Error ? error.message : 'Failed to create task',
+            isLoading: false 
+          });
+          return null;
+        }
+      },
+
+      // Update a task
+      updateTask: async (taskId, updates) => {
+        set({ isLoading: true, error: null });
+        
+        try {
+          // Update status if provided
+          if (updates.status) {
+            await updateTaskStatus(taskId, updates.status);
+          }
+          
+          // For other updates, we'd need additional database functions
+          // For now, update local state and reload from database
+          await get().loadUserTasks(get().tasks[0]?.userId || '');
+          
+        } catch (error) {
+          console.error('Error updating task:', error);
+          set({ 
+            error: error instanceof Error ? error.message : 'Failed to update task',
+            isLoading: false 
+          });
+        }
+      },
+
+      // Remove a task
+      removeTask: async (taskId) => {
+        set({ isLoading: true, error: null });
+        
+        try {
+          await deleteTask(taskId);
+          
+          set(state => ({ 
+            tasks: state.tasks.filter(task => task.id !== taskId),
+            checklistItems: state.checklistItems.filter(item => item.taskId !== taskId),
+            isLoading: false 
+          }));
+        } catch (error) {
+          console.error('Error deleting task:', error);
+          set({ 
+            error: error instanceof Error ? error.message : 'Failed to delete task',
+            isLoading: false 
+          });
+        }
+      },
+
+      // Add checklist item
+      addChecklistItem: async (taskId, title) => {
+        set({ error: null });
+        
+        try {
+          const newItemDoc = await createChecklistItem({ taskId, title });
+          const newItem = newItemDoc.toJSON();
+          
+          set(state => ({ 
+            checklistItems: [...state.checklistItems, newItem]
+          }));
+          
+          return newItem;
+        } catch (error) {
+          console.error('Error adding checklist item:', error);
+          set({ 
+            error: error instanceof Error ? error.message : 'Failed to add checklist item'
+          });
+          return null;
+        }
+      },
+
+      // Toggle checklist item completion
+      toggleChecklistItem: async (itemId, completed) => {
+        set({ error: null });
+        
+        try {
+          await updateChecklistItemCompleted(itemId, completed);
+          
+          set(state => ({
+            checklistItems: state.checklistItems.map(item =>
+              item.id === itemId ? { ...item, completed } : item
+            )
+          }));
+        } catch (error) {
+          console.error('Error updating checklist item:', error);
+          set({ 
+            error: error instanceof Error ? error.message : 'Failed to update checklist item'
+          });
+        }
+      },
+
+      // Remove checklist item
+      removeChecklistItem: async (itemId) => {
+        set({ error: null });
+        
+        try {
+          await deleteChecklistItem(itemId);
+          
+          set(state => ({ 
+            checklistItems: state.checklistItems.filter(item => item.id !== itemId)
+          }));
+        } catch (error) {
+          console.error('Error deleting checklist item:', error);
+          set({ 
+            error: error instanceof Error ? error.message : 'Failed to delete checklist item'
+          });
+        }
+      },
+
+      // Load checklist for a specific task
+      loadTaskChecklist: async (taskId) => {
+        try {
+          const itemDocs = await getChecklistItemsByTaskId(taskId);
+          const items = itemDocs.map(doc => doc.toJSON());
+          
+          // Update state with these items
+          set(state => ({
+            checklistItems: [
+              ...state.checklistItems.filter(item => item.taskId !== taskId),
+              ...items
+            ]
+          }));
+          
+          return items;
+        } catch (error) {
+          console.error('Error loading checklist:', error);
+          set({ 
+            error: error instanceof Error ? error.message : 'Failed to load checklist'
+          });
+          return [];
+        }
+      },
+
+      // Utility actions
+      clearError: () => set({ error: null }),
+      
+      resetTasks: () => set({ 
+        tasks: [], 
+        checklistItems: [], 
+        error: null, 
+        isLoading: false 
+      }),
+    }));
+
+// Selectors for easier access
+export const useTasksLoading = () => useTaskStore((state) => state.isLoading);
+export const useTasksError = () => useTaskStore((state) => state.error);
+export const useUserTasks = () => useTaskStore((state) => state.tasks);
+export const useTaskById = (taskId: string) => useTaskStore((state) => 
+  state.tasks.find(task => task.id === taskId)
+);
+export const useTasksByStatus = (status: TaskStatus) => useTaskStore((state) => 
+  state.tasks.filter(task => task.status === status)
+);
+export const useChecklistByTaskId = (taskId: string) => useTaskStore((state) => 
+  state.checklistItems.filter(item => item.taskId === taskId)
+);

@@ -1,0 +1,58 @@
+Here is a step-by-step development plan tailored for the offline-first construction task application using React, Node.js, RxDB, Zustand, and TypeScript, based on the requirements and the plan provided.[1]
+
+### Step 1: Project Setup
+
+- Create a new GitHub repository and initialize a fresh React project with TypeScript in strict mode.[1]
+- Install packages: React, Zustand, RxDB (latest), React-Router, Tailwind CSS.
+- Set up the project structure following feature-based directories (e.g., components, pages, hooks, db).
+
+### Step 2: Authentication & User Management
+
+- Build a simple login form accepting only a username.
+- Implement logic to add or fetch the user in RxDB; ensure no passwords involved.[1]
+- Segregate user data for privacy: each user's tasks/checklists should be isolated in RxDB.
+
+### Step 3: Routing and State Management
+
+- Set up React Router for core pages: Login, Floor Plan View, Task Board/List.[1]
+- Configure Zustand store to manage global states for current user, tasks, and checklist data.
+
+### Step 4: Floor Plan Interface
+
+- Load the provided floor plan image and set up the interactive UI.[1]
+- Implement click or selection logic for adding tasks directly to positions on the floor plan.
+
+### Step 5: Task and Checklist Logic
+
+- Design the task model: title, associated checklist (shown as panel or modal inspired by Figma).
+- Implement CRUD operations for tasks and their checklists.[1]
+- Checklist items: Allow editing, deleting, adding. Incorporate status options (“Not started”, “In progress”, “Blocked”, “Final Check awaiting”, “Done”).
+
+### Step 6: Board/List View
+
+- Create a list or board for tasks (separate from floor plan, accessible via routing).
+- Ensure task actions (add/edit/delete) and checklist status changes sync properly across board and plan.[1]
+
+### Step 7: Offline-First Data Layer
+
+- Implement RxDB storage for all app data—users, tasks, checklists—enabling full offline functionality.
+- Avoid RxDB sync helper; architect custom offline logic as required.[1]
+- Test for reliability and data persistence when disconnected.
+
+### Step 8: Styling and UI Polish
+
+- Style all pages and components using Tailwind CSS (or similar utility-first CSS framework).[1]
+- Ensure UI matches the supplied Figma inspiration and is clear, accessible, and maintainable.
+
+### Step 9: Testing
+
+- Write unit and integration tests for key features: login, task creation, checklist updates, offline operation, routing.[1]
+- Manually validate the app with multiple users and blackout/offline scenarios to ensure data segregation and reliability.
+
+### Step 10: Documentation & Handover
+
+- Compose a detailed README.md: setup instructions, architecture overview, feature walkthrough, and dev notes.[1]
+- Track and note time spent per feature/task.
+- List potential refactoring/improvement areas for the future.
+- Record and include a demo walkthrough video, covering code structure and application usage.
+- Organize codebase for review and prepare package for submission via GitHub or ZIP archive.
