@@ -22,50 +22,73 @@ export const Navigation: React.FC = () => {
   const isActive = (path: string) => location.pathname === path;
 
   const navItems = [
-    { path: '/dashboard', label: 'Dashboard', icon: '🏠' },
-    { path: '/floor-plan', label: 'Floor Plan', icon: '🏗️' },
-    { path: '/tasks', label: 'Task Board', icon: '📋' },
+    { path: '/dashboard', label: 'Dashboard', icon: (
+      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5a2 2 0 012-2h4a2 2 0 012 2v4H8V5z" />
+      </svg>
+    )},
+    { path: '/floor-plan', label: 'Floor Plan', icon: (
+      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+      </svg>
+    )},
+    { path: '/tasks', label: 'Task Board', icon: (
+      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+      </svg>
+    )},
   ];
 
   return (
-    <header className="bg-white shadow-sm border-b border-gray-200">
+    <header className="bg-white shadow-cendas border-b border-cendas-neutral-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* Logo and Navigation */}
+          {/* Cendas Logo and Navigation */}
           <div className="flex items-center space-x-8">
             <Link 
               to="/dashboard" 
-              className="text-xl font-semibold text-gray-900 hover:text-blue-600 transition-colors"
+              className="flex items-center space-x-3 text-xl font-bold text-cendas-primary-600 hover:text-cendas-primary-700 transition-colors"
             >
-              Construction Planner
+              <div className="w-8 h-8 cendas-gradient-primary rounded-lg flex items-center justify-center">
+                <svg className="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
+              </div>
+              <span>Cendas Planner</span>
             </Link>
             
-            <nav className="hidden md:flex space-x-6">
+            <nav className="hidden md:flex space-x-1">
               {navItems.map((item) => (
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                     isActive(item.path)
-                      ? 'bg-blue-100 text-blue-700'
-                      : 'text-gray-700 hover:text-blue-600 hover:bg-gray-100'
+                      ? 'bg-cendas-primary-100 text-cendas-primary-700 shadow-sm'
+                      : 'text-cendas-neutral-700 hover:text-cendas-primary-600 hover:bg-cendas-neutral-100'
                   }`}
                 >
-                  <span>{item.icon}</span>
+                  {item.icon}
                   <span>{item.label}</span>
                 </Link>
               ))}
             </nav>
           </div>
           
-          {/* User Menu */}
+          {/* User Menu with Cendas styling */}
           <div className="flex items-center space-x-4">
-            <div className="text-sm text-gray-700">
-              Welcome, <span className="font-medium">{currentUser.username}</span>
+            <div className="hidden sm:flex items-center space-x-2 text-sm text-cendas-neutral-700">
+              <div className="w-6 h-6 bg-cendas-primary-500 rounded-full flex items-center justify-center">
+                <svg className="h-3 w-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </div>
+              <span className="font-medium text-cendas-neutral-900">{currentUser.username}</span>
             </div>
             <button
               onClick={handleLogout}
-              className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-md text-sm font-medium transition duration-200"
+              className="bg-cendas-neutral-100 hover:bg-cendas-neutral-200 text-cendas-neutral-700 hover:text-cendas-neutral-900 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border border-cendas-neutral-200"
             >
               Sign Out
             </button>
@@ -73,20 +96,20 @@ export const Navigation: React.FC = () => {
         </div>
       </div>
       
-      {/* Mobile Navigation */}
-      <div className="md:hidden border-t border-gray-200">
-        <div className="px-4 py-2 space-y-1">
+      {/* Mobile Navigation with Cendas styling */}
+      <div className="md:hidden border-t border-cendas-neutral-200 bg-cendas-neutral-50">
+        <div className="px-4 py-3 space-y-1">
           {navItems.map((item) => (
             <Link
               key={item.path}
               to={item.path}
-              className={`flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+              className={`flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                 isActive(item.path)
-                  ? 'bg-blue-100 text-blue-700'
-                  : 'text-gray-700 hover:text-blue-600 hover:bg-gray-100'
+                  ? 'bg-cendas-primary-100 text-cendas-primary-700'
+                  : 'text-cendas-neutral-700 hover:text-cendas-primary-600 hover:bg-white'
               }`}
             >
-              <span>{item.icon}</span>
+              {item.icon}
               <span>{item.label}</span>
             </Link>
           ))}

@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
+import { TaskDetailsModal } from '../components/TaskDetailsModal';
 import { Navigation } from '../components/Navigation';
 import { useCurrentUser } from '../store/authStore';
 import { useUserTasks, useTaskStore, Task, TaskStatus, ChecklistItem } from '../store/taskStore';
@@ -83,6 +84,10 @@ export const TaskBoardView: React.FC = () => {
   const [viewMode, setViewMode] = useState<'board' | 'list'>('board');
   const [isLoading, setIsLoading] = useState(false);
 
+  // Checklist modal state
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [detailsOpen, setDetailsOpen] = useState(false);
+
   // ✅ Optimized checklist data with better dependency tracking
   const checklistData = useMemo(() => {
     const data: Record<string, ChecklistItem[]> = {};
@@ -124,9 +129,25 @@ export const TaskBoardView: React.FC = () => {
 
   // ✅ Optimized callback handlers
   const handleTaskClick = useCallback((task: Task) => {
-    console.log('Task clicked:', task.title);
-    // TODO: Open task detail modal or navigate to task page
+    setSelectedTask(task);
+    setDetailsOpen(true);
   }, []);
+
+  const handleCloseDetails = useCallback(() => {
+    setDetailsOpen(false);
+    setSelectedTask(null);
+  }, []);
+
+  const handleAddChecklistItem = useCallback((title: string) => {
+    if (selectedTask) {
+      taskStore.addChecklistItem(selectedTask.id, title);
+    }
+  }, [selectedTask, taskStore]);
+
+  const handleToggleChecklistItem = useCallback((itemId: string, completed: boolean) => {
+    taskStore.toggleChecklistItem(itemId, completed);
+  }, [taskStore]);
+
 
   const handleAddTask = useCallback((status: TaskStatus) => {
     console.log('Add task with status:', status);
@@ -285,7 +306,14 @@ export const TaskBoardView: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <Navigation />
-
+      <TaskDetailsModal
+        isOpen={detailsOpen}
+        task={selectedTask}
+        checklist={selectedTask ? checklistData[selectedTask.id] || [] : []}
+        onClose={handleCloseDetails}
+        onAddChecklistItem={handleAddChecklistItem}
+        onToggleChecklistItem={handleToggleChecklistItem}
+      />
       {/* Main Content */}
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">

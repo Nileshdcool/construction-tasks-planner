@@ -48,6 +48,7 @@ export const FloorPlanView: React.FC = () => {
     description?: string;
     status: 'not-started' | 'in-progress' | 'blocked' | 'final-check' | 'done';
     position: { x: number; y: number; relativeX: number; relativeY: number };
+    checklist?: string[];
   }) => {
     if (currentUser) {
       const taskCreateData: {
@@ -62,12 +63,17 @@ export const FloorPlanView: React.FC = () => {
         position: { x: taskData.position.x, y: taskData.position.y },
         userId: currentUser.id
       };
-      
       if (taskData.description) {
         taskCreateData.description = taskData.description;
       }
-      
-      await createNewTask(taskCreateData);
+      // Create the task first
+      const newTask = await createNewTask(taskCreateData);
+      // If checklist items exist, create them for the new task
+      if (newTask && taskData.checklist && taskData.checklist.length > 0) {
+        for (const item of taskData.checklist) {
+          await useTaskStore.getState().addChecklistItem(newTask.id, item);
+        }
+      }
     }
   };
 
