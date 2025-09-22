@@ -6,6 +6,8 @@ import { Navigation } from '../components/Navigation';
 import { FloorPlanUpload } from '../components/FloorPlanUpload';
 import { InteractiveFloorPlan } from '../components/InteractiveFloorPlan';
 import { TaskCreationModal } from '../components/TaskCreationModal';
+import { TaskDetailsModal } from '../components/TaskDetailsModal';
+import { ChecklistItem } from '../store/taskStore';
 
 export const FloorPlanView: React.FC = () => {
   const currentUser = useCurrentUser();
@@ -22,6 +24,8 @@ export const FloorPlanView: React.FC = () => {
     relativeY: number;
   } | null>(null);
   const [showTaskModal, setShowTaskModal] = useState(false);
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  const [showDetails, setShowDetails] = useState(false);
 
   useEffect(() => {
     if (currentUser) {
@@ -77,9 +81,22 @@ export const FloorPlanView: React.FC = () => {
     }
   };
 
-  const handleTaskSelect = (task: any) => {
-    // Handle task selection (could open task details modal)
-    console.log('Task selected:', task);
+  const handleTaskSelect = async (task: any) => {
+    setSelectedTaskId(task.id);
+    // Ensure checklist items are loaded for this task
+    await useTaskStore.getState().loadTaskChecklist(task.id);
+    setShowDetails(true);
+  };
+
+  const selectedTask = tasks.find(t => t.id === selectedTaskId) || null;
+  const checklistItems: ChecklistItem[] = selectedTask ? useTaskStore.getState().checklistItems.filter(ci => ci.taskId === selectedTask.id) : [];
+  const handleAddChecklistItem = (title: string) => {
+    if (selectedTask) {
+      useTaskStore.getState().addChecklistItem(selectedTask.id, title);
+    }
+  };
+  const handleToggleChecklistItem = (itemId: string, completed: boolean) => {
+    useTaskStore.getState().toggleChecklistItem(itemId, completed);
   };
 
   if (!currentUser) {
@@ -204,6 +221,14 @@ export const FloorPlanView: React.FC = () => {
           setTaskCreationPosition(null);
         }}
         onCreateTask={handleTaskCreation}
+      />
+      <TaskDetailsModal
+        isOpen={showDetails}
+        task={selectedTask}
+        checklist={checklistItems}
+        onClose={() => setShowDetails(false)}
+        onAddChecklistItem={handleAddChecklistItem}
+        onToggleChecklistItem={handleToggleChecklistItem}
       />
     </div>
   );

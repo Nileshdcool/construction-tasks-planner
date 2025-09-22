@@ -1,5 +1,6 @@
 import React from 'react';
 import { Task, ChecklistItem } from '../store/taskStore';
+import { ChecklistList } from './checklist/ChecklistList';
 
 interface TaskDetailsModalProps {
   isOpen: boolean;
@@ -10,38 +11,6 @@ interface TaskDetailsModalProps {
   onToggleChecklistItem: (itemId: string, completed: boolean) => void;
 }
 
-const statusIcon = (item: ChecklistItem) => {
-  // Blocked/error
-  if (item.title.toLowerCase().includes('block') || item.title.toLowerCase().includes('error')) {
-    return (
-      <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-red-100 text-red-600 border border-red-400 mr-2">
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-      </span>
-    );
-  }
-  // Completed
-  if (item.completed) {
-    return (
-      <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-green-100 text-green-600 border border-green-400 mr-2">
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
-      </span>
-    );
-  }
-  // In progress/final check
-  if (item.title.toLowerCase().includes('final')) {
-    return (
-      <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-blue-600 border border-blue-400 mr-2">
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="M12 8v4m0 4h.01" /></svg>
-      </span>
-    );
-  }
-  // Not started
-  return (
-    <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gray-100 text-gray-400 border border-gray-300 mr-2">
-      <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2" /></svg>
-    </span>
-  );
-};
 
 export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
   isOpen,
@@ -80,27 +49,11 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
         </div>
         {/* Checklist */}
         <div className="px-0 py-0">
-          <ul className="divide-y divide-gray-100 mb-2">
-            {checklist.map((item) => (
-              <li key={item.id} className="flex items-start py-3 px-6">
-                <button
-                  className="mt-1 mr-3 focus:outline-none"
-                  onClick={() => onToggleChecklistItem(item.id, !item.completed)}
-                  aria-label={item.completed ? 'Mark as not done' : 'Mark as done'}
-                >
-                  {statusIcon(item)}
-                </button>
-                <div className="flex-1 min-w-0">
-                  <div className={`font-medium text-base ${item.completed ? 'text-green-700 line-through' : item.title.toLowerCase().includes('block') ? 'text-red-700 font-semibold' : 'text-gray-900'}`}>{item.title}</div>
-                  <div className="text-xs mt-0.5 flex items-center">
-                    {item.completed && <span className="text-green-600">Done: Part installation done</span>}
-                    {!item.completed && item.title.toLowerCase().includes('block') && <span className="text-red-600">Blocked : Part installation done</span>}
-                    {!item.completed && !item.title.toLowerCase().includes('block') && <span className="text-gray-400">Not started</span>}
-                  </div>
-                </div>
-              </li>
-            ))}
-          </ul>
+          <ChecklistList
+            items={checklist}
+            mode="view"
+            onToggleItem={(id, completed) => onToggleChecklistItem(id, completed)}
+          />
           <div className="flex items-center px-6 pb-4 pt-2">
             <button
               className="flex items-center border border-blue-500 text-blue-600 hover:bg-blue-50 rounded-full px-3 py-1 text-sm font-medium mr-2 transition"
