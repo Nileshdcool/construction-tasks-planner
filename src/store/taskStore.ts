@@ -2,12 +2,12 @@ import { create } from 'zustand';
 import { 
   createTask, 
   getTasksByUserId, 
-  updateTaskStatus, 
   deleteTask,
   createChecklistItem,
   getChecklistItemsByTaskId,
   updateChecklistItemCompleted,
-  deleteChecklistItem
+  deleteChecklistItem,
+  updateTaskFields
 } from '../db/database';
 
 // Types from task schema
@@ -71,9 +71,7 @@ interface TaskState {
 }
 
 export const useTaskStore = create<TaskState>()(
-  // Temporarily disable persist to debug infinite loop
-  // persist(
-    (set, get) => ({
+    (set) => ({
       // Initial state
       tasks: [],
       checklistItems: [],
@@ -130,22 +128,18 @@ export const useTaskStore = create<TaskState>()(
       // Update a task
       updateTask: async (taskId, updates) => {
         set({ isLoading: true, error: null });
-        
         try {
-          // Update status if provided
-          if (updates.status) {
-            await updateTaskStatus(taskId, updates.status);
-          }
-          
-          // For other updates, we'd need additional database functions
-          // For now, update local state and reload from database
-          await get().loadUserTasks(get().tasks[0]?.userId || '');
-          
+          await updateTaskFields(taskId, updates);
+          // Update local state optimistically
+          set(state => ({
+            tasks: state.tasks.map(t => t.id === taskId ? { ...t, ...updates, updatedAt: new Date().toISOString() } : t),
+            isLoading: false
+          }));
         } catch (error) {
           console.error('Error updating task:', error);
-          set({ 
+          set({
             error: error instanceof Error ? error.message : 'Failed to update task',
-            isLoading: false 
+            isLoading: false
           });
         }
       },

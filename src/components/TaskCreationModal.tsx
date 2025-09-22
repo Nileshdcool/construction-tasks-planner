@@ -11,37 +11,41 @@ interface FloorPlanPosition {
 
 interface TaskCreationModalProps {
   isOpen: boolean;
-  position: FloorPlanPosition | null;
+  position?: FloorPlanPosition | null; // optional for board usage
+  initialStatus?: TaskStatus;
   onClose: () => void;
   onCreateTask: (taskData: {
     title: string;
     description?: string;
     status: TaskStatus;
-    position: FloorPlanPosition;
-  }) => Promise<void>;
+    position?: FloorPlanPosition; // optional
+    checklist?: string[];
+  }) => Promise<void | { id: string }>;
 }
 
 export const TaskCreationModal: React.FC<TaskCreationModalProps> = ({
   isOpen,
-  position,
+  position = null,
+  initialStatus = 'not-started',
   onClose,
   onCreateTask
 }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [status, setStatus] = useState<TaskStatus>('not-started');
+  const [status, setStatus] = useState<TaskStatus>(initialStatus);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   // Checklist state
   const [checklist, setChecklist] = useState<string[]>([]);
   const [newChecklistItem, setNewChecklistItem] = useState('');
+  const [checklistCollapsed, setChecklistCollapsed] = useState(false);
 
   // Reset form when modal opens/closes
   useEffect(() => {
     if (isOpen) {
       setTitle('');
       setDescription('');
-      setStatus('not-started');
+      setStatus(initialStatus);
       setError('');
 
       setChecklist([]);
@@ -57,7 +61,8 @@ export const TaskCreationModal: React.FC<TaskCreationModalProps> = ({
       return;
     }
 
-    if (!position) {
+    // Position optional: only enforce if component was passed a position prop explicitly
+    if (position === null && typeof position !== 'undefined') {
       setError('No position selected');
       return;
     }
@@ -70,12 +75,12 @@ export const TaskCreationModal: React.FC<TaskCreationModalProps> = ({
         title: string;
         description?: string;
         status: TaskStatus;
-        position: FloorPlanPosition;
+        position?: FloorPlanPosition;
         checklist?: string[];
       } = {
         title: title.trim(),
         status,
-        position
+        ...(position ? { position } : {})
       };
       if (description.trim()) {
         taskData.description = description.trim();
@@ -189,44 +194,57 @@ export const TaskCreationModal: React.FC<TaskCreationModalProps> = ({
 
 
                 {/* Checklist */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Checklist</label>
-                  <div className="flex mb-2 px-0">
-                    <button
-                      type="button"
-                      className="flex items-center border border-blue-500 text-blue-600 hover:bg-blue-50 rounded-full px-3 py-1 text-sm font-medium mr-2 transition"
-                      disabled={isSubmitting || !newChecklistItem.trim()}
-                      onClick={() => {
-                        if (newChecklistItem.trim()) {
-                          setChecklist([...checklist, newChecklistItem.trim()]);
-                          setNewChecklistItem('');
-                        }
-                      }}
-                    >
-                      <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="M12 8v4m0 4h.01" /></svg>
-                      ADD NEW ITEM
-                    </button>
-                    <input
-                      type="text"
-                      value={newChecklistItem}
-                      onChange={e => setNewChecklistItem(e.target.value)}
-                      className="flex-1 border border-gray-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Checklist item..."
-                      disabled={isSubmitting}
-                      onKeyDown={e => {
-                        if (e.key === 'Enter' && newChecklistItem.trim()) {
-                          setChecklist([...checklist, newChecklistItem.trim()]);
-                          setNewChecklistItem('');
-                          e.preventDefault();
-                        }
-                      }}
-                    />
+                <div className="border border-gray-200 rounded-md overflow-hidden">
+                  <div
+                    className="flex items-center justify-between px-4 py-2 bg-gray-50 cursor-pointer select-none"
+                    onClick={() => setChecklistCollapsed(c => !c)}
+                  >
+                    <div className="flex items-center space-x-2">
+                      <span className="text-sm font-semibold text-gray-800">Checklist</span>
+                      <span className="text-xs text-gray-500">{checklist.length} item{checklist.length!==1?'s':''}</span>
+                    </div>
+                    <svg className={`w-5 h-5 text-gray-500 transition-transform ${checklistCollapsed ? '-rotate-90' : 'rotate-0'}`} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
                   </div>
-                  <ChecklistList
-                    items={checklist.map(title => ({ title }))}
-                    mode="create"
-                    onRemoveTempItem={(idx) => setChecklist(checklist.filter((_, i) => i !== idx))}
-                  />
+                  {!checklistCollapsed && (
+                    <div className="p-4 pt-3">
+                      <div className="flex mb-3">
+                        <input
+                          type="text"
+                          value={newChecklistItem}
+                          onChange={e => setNewChecklistItem(e.target.value)}
+                          className="flex-1 border border-gray-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent mr-2"
+                          placeholder="Add new checklist item..."
+                          disabled={isSubmitting}
+                          onKeyDown={e => {
+                            if (e.key === 'Enter' && newChecklistItem.trim()) {
+                              setChecklist([...checklist, newChecklistItem.trim()]);
+                              setNewChecklistItem('');
+                              e.preventDefault();
+                            }
+                          }}
+                        />
+                        <button
+                          type="button"
+                          className="inline-flex items-center bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-md px-3 py-1 text-sm font-medium transition"
+                          disabled={isSubmitting || !newChecklistItem.trim()}
+                          onClick={() => {
+                            if (newChecklistItem.trim()) {
+                              setChecklist([...checklist, newChecklistItem.trim()]);
+                              setNewChecklistItem('');
+                            }
+                          }}
+                        >
+                          <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
+                          Add
+                        </button>
+                      </div>
+                      <ChecklistList
+                        items={checklist.map(title => ({ title }))}
+                        mode="create"
+                        onRemoveTempItem={(idx) => setChecklist(checklist.filter((_, i) => i !== idx))}
+                      />
+                    </div>
+                  )}
                 </div>
 
                 {/* Status */}

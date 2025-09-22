@@ -51,7 +51,7 @@ export const FloorPlanView: React.FC = () => {
     title: string;
     description?: string;
     status: 'not-started' | 'in-progress' | 'blocked' | 'final-check' | 'done';
-    position: { x: number; y: number; relativeX: number; relativeY: number };
+    position?: { x: number; y: number; relativeX: number; relativeY: number };
     checklist?: string[];
   }) => {
     if (currentUser) {
@@ -64,7 +64,7 @@ export const FloorPlanView: React.FC = () => {
       } = {
         title: taskData.title,
         status: taskData.status,
-        position: { x: taskData.position.x, y: taskData.position.y },
+        position: { x: taskData.position?.x || 0, y: taskData.position?.y || 0 },
         userId: currentUser.id
       };
       if (taskData.description) {

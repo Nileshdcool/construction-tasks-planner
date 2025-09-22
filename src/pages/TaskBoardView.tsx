@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { TaskDetailsModal } from '../components/TaskDetailsModal';
+import { TaskCreationModal } from '../components/TaskCreationModal';
 import { Navigation } from '../components/Navigation';
 import { useCurrentUser } from '../store/authStore';
 import { useUserTasks, useTaskStore, Task, TaskStatus, ChecklistItem } from '../store/taskStore';
@@ -82,6 +83,8 @@ export const TaskBoardView: React.FC = () => {
   const tasks = useUserTasks();
   const taskStore = useTaskStore();
   const [viewMode, setViewMode] = useState<'board' | 'list'>('board');
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [preselectedStatus, setPreselectedStatus] = useState<TaskStatus>('not-started');
   const [isLoading, setIsLoading] = useState(false);
 
   // Checklist modal state
@@ -150,9 +153,25 @@ export const TaskBoardView: React.FC = () => {
 
 
   const handleAddTask = useCallback((status: TaskStatus) => {
-    console.log('Add task with status:', status);
-    // TODO: Open create task modal with pre-selected status
+    setPreselectedStatus(status);
+    setShowCreateModal(true);
   }, []);
+
+  const handleCreateTask = useCallback(async (data: { title: string; description?: string; status: TaskStatus; checklist?: string[] }) => {
+    if (!currentUser) return;
+    const baseTask: { title: string; status?: TaskStatus; userId: string; description?: string } = {
+      title: data.title,
+      status: data.status,
+      userId: currentUser.id,
+      ...(data.description ? { description: data.description } : {})
+    };
+    const newTask = await taskStore.createNewTask(baseTask);
+    if (newTask && data.checklist && data.checklist.length) {
+      for (const item of data.checklist) {
+        await taskStore.addChecklistItem(newTask.id, item);
+      }
+    }
+  }, [currentUser, taskStore]);
 
   const handleViewModeChange = useCallback((mode: 'board' | 'list') => {
     setViewMode(mode);
@@ -314,18 +333,22 @@ export const TaskBoardView: React.FC = () => {
         onAddChecklistItem={handleAddChecklistItem}
         onToggleChecklistItem={handleToggleChecklistItem}
       />
+      <TaskCreationModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        initialStatus={preselectedStatus}
+        onCreateTask={handleCreateTask}
+      />
       {/* Main Content */}
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
           {/* Action Bar */}
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center space-x-4">
-              <button 
+              <button
                 onClick={() => handleAddTask('not-started')}
                 className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-200"
-              >
-                + New Task
-              </button>
+              >+ New Task</button>
               <button className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-md text-sm font-medium transition duration-200">
                 Filter
               </button>

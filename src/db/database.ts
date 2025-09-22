@@ -377,6 +377,27 @@ export async function updateTaskStatus(taskId: string, status: 'not-started' | '
   return null;
 }
 
+// Generic update for multiple task fields
+export async function updateTaskFields(taskId: string, updates: {
+  title?: string;
+  description?: string;
+  status?: 'not-started' | 'in-progress' | 'blocked' | 'final-check' | 'done';
+  position?: { x: number; y: number };
+}) {
+  const db = await getDatabase();
+  const task = await db.tasks.findOne({ selector: { id: taskId } }).exec();
+  if (task) {
+    const now = new Date().toISOString();
+    const patch: any = { updatedAt: now };
+    if (typeof updates.title === 'string') patch.title = updates.title;
+    if (typeof updates.description === 'string') patch.description = updates.description;
+    if (updates.status) patch.status = updates.status;
+    if (updates.position) patch.position = updates.position;
+    return task.incrementalPatch(patch);
+  }
+  return null;
+}
+
 export async function deleteTask(taskId: string) {
   const db = await getDatabase();
   const task = await db.tasks.findOne({
