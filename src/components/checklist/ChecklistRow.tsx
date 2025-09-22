@@ -39,13 +39,18 @@ export const ChecklistRow: React.FC<ChecklistRowProps> = ({ item, mode, onToggle
       {mode === 'view' ? (
         <button
           className="mt-1 mr-3 focus:outline-none"
-          onClick={() => onToggle && onToggle(!completed)}
+          type="button"
+          onClick={e => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (onToggle) onToggle(!completed);
+          }}
           aria-label={completed ? 'Mark as not done' : 'Mark as done'}
         >
           {iconFor(state)}
         </button>
       ) : (
-  <span className="mt-1 mr-3">{iconFor(state)}</span>
+        <span className="mt-1 mr-3">{iconFor(state)}</span>
       )}
       <div className="flex-1 min-w-0">
         <div className={`font-medium text-base ${state === 'blocked' ? 'text-red-700 font-semibold' : completed ? 'text-green-700 line-through' : 'text-gray-900'}`}>{item.title}</div>

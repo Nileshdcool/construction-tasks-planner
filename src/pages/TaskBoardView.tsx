@@ -4,6 +4,7 @@ import { TaskCreationModal } from '../components/TaskCreationModal';
 import { Navigation } from '../components/Navigation';
 import { useCurrentUser } from '../store/authStore';
 import { useUserTasks, useTaskStore, Task, TaskStatus, ChecklistItem } from '../store/taskStore';
+import { useUserFloorPlans } from '../store/floorPlanStore';
 
 const StatusBadge: React.FC<{ status: TaskStatus }> = React.memo(({ status }) => {
   const base = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-medium tracking-wide';
@@ -80,7 +81,9 @@ const TaskCard: React.FC<{
 export const TaskBoardView: React.FC = () => {
   const currentUser = useCurrentUser();
   const tasks = useUserTasks();
+  const floorPlans = useUserFloorPlans();
   const taskStore = useTaskStore();
+  const floorPlanStore = require('../store/floorPlanStore');
   const [viewMode, setViewMode] = useState<'board' | 'list'>('board');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [preselectedStatus, setPreselectedStatus] = useState<TaskStatus>('not-started');
@@ -115,17 +118,19 @@ export const TaskBoardView: React.FC = () => {
   useEffect(() => {
     const loadData = async () => {
       if (!currentUser) return;
-      
       setIsLoading(true);
       try {
+        // Load floor plans first
+        if (floorPlanStore && floorPlanStore.useFloorPlanStore) {
+          await floorPlanStore.useFloorPlanStore.getState().loadUserFloorPlans(currentUser.id);
+        }
         await taskStore.loadUserTasks(currentUser.id);
       } catch (error) {
-        console.error('Error loading task data:', error);
+        console.error('Error loading task or plan data:', error);
       } finally {
         setIsLoading(false);
       }
     };
-
     loadData();
   }, [currentUser]);
 
@@ -257,6 +262,7 @@ export const TaskBoardView: React.FC = () => {
           {tasks.map(task => {
             const taskChecklistItems = checklistData[task.id] || [];
             const completed = taskChecklistItems.filter(i => i.completed).length;
+            const plan = floorPlans.find(fp => fp.id === task.planId);
             return (
               <div key={task.id} onClick={() => handleTaskClick(task)} className="px-5 py-3 hover:bg-gray-50 transition-colors cursor-pointer">
                 <div className="flex items-center justify-between gap-4">
@@ -271,6 +277,8 @@ export const TaskBoardView: React.FC = () => {
                       <span>{new Date(task.createdAt).toLocaleDateString()}</span>
                       <span>{taskChecklistItems.length} steps</span>
                       <span>{completed} done</span>
+                      {plan && <span className="text-blue-600">Plan: {plan.name}</span>}
+                      {!plan && task.planId && <span className="text-red-500">Plan: (not found)</span>}
                     </div>
                   </div>
                   {taskChecklistItems.length > 0 && (

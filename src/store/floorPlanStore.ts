@@ -5,7 +5,9 @@ import {
   getActiveFloorPlan,
   getFloorPlansByUserId,
   setActiveFloorPlan,
-  deleteFloorPlan
+  deleteFloorPlan,
+  renameFloorPlan,
+  replaceFloorPlanImage
 } from '../db/database';
 
 export interface FloorPlan {
@@ -31,6 +33,8 @@ interface FloorPlanState {
   uploadFloorPlan: (userId: string, name: string, imageFile: File) => Promise<FloorPlan | null>;
   setActiveFloorPlanById: (floorPlanId: string, userId: string) => Promise<void>;
   removeFloorPlan: (floorPlanId: string) => Promise<void>;
+  rename: (floorPlanId: string, name: string) => Promise<void>;
+  replaceImage: (floorPlanId: string, imageFile: File) => Promise<void>;
   
   // Utility actions
   clearError: () => void;
@@ -157,14 +161,20 @@ export const useFloorPlanStore = create<FloorPlanState>()(
       // Remove a floor plan
       removeFloorPlan: async (floorPlanId: string) => {
         set({ isLoading: true, error: null });
-        
         try {
           await deleteFloorPlan(floorPlanId);
-          
+
+          // Also clear tasks for this plan from the task store if available
+          try {
+            const { useTaskStore } = await import('./taskStore');
+            useTaskStore.getState().resetTasks(); // This clears all tasks; optionally, filter by planId if needed
+          } catch (e) {
+            // Ignore if taskStore not available
+          }
+
           set(state => {
             const wasActive = state.activeFloorPlan?.id === floorPlanId;
             const remainingPlans = state.floorPlans.filter(fp => fp.id !== floorPlanId);
-            
             return {
               floorPlans: remainingPlans,
               activeFloorPlan: wasActive ? (remainingPlans[0] || null) : state.activeFloorPlan,
@@ -177,6 +187,39 @@ export const useFloorPlanStore = create<FloorPlanState>()(
             error: error instanceof Error ? error.message : 'Failed to delete floor plan',
             isLoading: false 
           });
+        }
+      },
+
+      // Rename a floor plan
+      rename: async (floorPlanId: string, name: string) => {
+        set({ isLoading: true, error: null });
+        try {
+          await renameFloorPlan(floorPlanId, name);
+          set(state => ({
+            floorPlans: state.floorPlans.map(fp => fp.id === floorPlanId ? { ...fp, name } : fp),
+            activeFloorPlan: state.activeFloorPlan?.id === floorPlanId ? { ...state.activeFloorPlan, name } : state.activeFloorPlan,
+            isLoading: false
+          }));
+        } catch (error) {
+          console.error('Error renaming floor plan:', error);
+          set({ error: error instanceof Error ? error.message : 'Failed to rename floor plan', isLoading: false });
+        }
+      },
+
+      // Replace floor plan image
+      replaceImage: async (floorPlanId: string, imageFile: File) => {
+        set({ isLoading: true, error: null });
+        try {
+          const base64 = await convertFileToBase64(imageFile);
+          await replaceFloorPlanImage(floorPlanId, base64, imageFile.name);
+          set(state => ({
+            floorPlans: state.floorPlans.map(fp => fp.id === floorPlanId ? { ...fp, imageUrl: base64, imageFileName: imageFile.name } : fp),
+            activeFloorPlan: state.activeFloorPlan?.id === floorPlanId ? { ...state.activeFloorPlan, imageUrl: base64, imageFileName: imageFile.name } : state.activeFloorPlan,
+            isLoading: false
+          }));
+        } catch (error) {
+          console.error('Error replacing floor plan image:', error);
+          set({ error: error instanceof Error ? error.message : 'Failed to replace floor plan image', isLoading: false });
         }
       },
 

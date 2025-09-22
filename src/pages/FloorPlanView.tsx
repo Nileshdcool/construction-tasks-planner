@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useCurrentUser } from '../store/authStore';
 import { useTaskStore, useUserTasks } from '../store/taskStore';
-import { useFloorPlanStore, useActiveFloorPlan } from '../store/floorPlanStore';
+import { useFloorPlanStore, useActiveFloorPlan, useUserFloorPlans } from '../store/floorPlanStore';
 import { Navigation } from '../components/Navigation';
 import { FloorPlanUpload } from '../components/FloorPlanUpload';
 import { InteractiveFloorPlan } from '../components/InteractiveFloorPlan';
@@ -14,7 +14,8 @@ export const FloorPlanView: React.FC = () => {
   const tasks = useUserTasks();
   const { loadUserTasks, createNewTask } = useTaskStore();
   const activeFloorPlan = useActiveFloorPlan();
-  const { loadActiveFloorPlan, uploadFloorPlan } = useFloorPlanStore();
+  const floorPlans = useUserFloorPlans();
+  const { loadActiveFloorPlan, uploadFloorPlan, setActiveFloorPlanById, loadUserFloorPlans } = useFloorPlanStore();
   
   const [isAddingTask, setIsAddingTask] = useState(false);
   const [taskCreationPosition, setTaskCreationPosition] = useState<{
@@ -27,12 +28,19 @@ export const FloorPlanView: React.FC = () => {
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [showDetails, setShowDetails] = useState(false);
 
+  // Load active plan then tasks for that plan
   useEffect(() => {
     if (currentUser) {
-      loadUserTasks(currentUser.id);
       loadActiveFloorPlan(currentUser.id);
+      loadUserFloorPlans(currentUser.id);
     }
-  }, [currentUser]); // Removed store functions from dependencies
+  }, [currentUser]);
+
+  useEffect(() => {
+    if (currentUser) {
+      loadUserTasks(currentUser.id, activeFloorPlan?.id);
+    }
+  }, [currentUser, activeFloorPlan?.id]);
 
   const handleImageUpload = async (_imageUrl: string, imageFile: File) => {
     if (currentUser && imageFile.name) {
@@ -61,12 +69,16 @@ export const FloorPlanView: React.FC = () => {
         status: 'not-started' | 'in-progress' | 'blocked' | 'final-check' | 'done';
         position: { x: number; y: number };
         userId: string;
+        planId?: string;
       } = {
         title: taskData.title,
         status: taskData.status,
         position: { x: taskData.position?.x || 0, y: taskData.position?.y || 0 },
         userId: currentUser.id
       };
+      if (activeFloorPlan?.id) {
+        taskCreateData.planId = activeFloorPlan.id;
+      }
       if (taskData.description) {
         taskCreateData.description = taskData.description;
       }
@@ -136,12 +148,31 @@ export const FloorPlanView: React.FC = () => {
             <div className="space-y-6">
               {/* Controls */}
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-lg font-medium text-gray-900">{activeFloorPlan.name}</h3>
-                    <p className="text-sm text-gray-600">
-                      Uploaded {new Date(activeFloorPlan.uploadedAt).toLocaleDateString()}
-                    </p>
+                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center flex-wrap gap-3">
+                      <div>
+                        <h3 className="text-lg font-medium text-gray-900">{activeFloorPlan.name}</h3>
+                        <p className="text-sm text-gray-600">Uploaded {new Date(activeFloorPlan.uploadedAt).toLocaleDateString()}</p>
+                      </div>
+                      {floorPlans.length > 1 && (
+                        <div className="flex items-center space-x-2">
+                          <label className="text-xs font-medium text-gray-500">Switch Plan:</label>
+                          <select
+                            className="text-sm border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                            value={activeFloorPlan.id}
+                            onChange={(e) => {
+                              const newId = e.target.value;
+                              if (currentUser) setActiveFloorPlanById(newId, currentUser.id);
+                            }}
+                          >
+                            {floorPlans.map(fp => (
+                              <option key={fp.id} value={fp.id}>{fp.name}</option>
+                            ))}
+                          </select>
+                        </div>
+                      )}
+                    </div>
                   </div>
                   <div className="flex space-x-3">
                     <button
@@ -156,7 +187,6 @@ export const FloorPlanView: React.FC = () => {
                     </button>
                     <button
                       onClick={() => {
-                        // Handle replace floor plan - could open file picker
                         const input = document.createElement('input');
                         input.type = 'file';
                         input.accept = 'image/*';

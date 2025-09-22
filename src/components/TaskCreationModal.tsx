@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
+import { useUserFloorPlans } from '../store/floorPlanStore';
 import { TaskStatus } from '../store/taskStore';
 import { ChecklistList } from './checklist/ChecklistList';
 
@@ -40,36 +42,43 @@ export const TaskCreationModal: React.FC<TaskCreationModalProps> = ({
   const [newChecklistItem, setNewChecklistItem] = useState('');
   const [checklistCollapsed, setChecklistCollapsed] = useState(false);
 
-  // Reset form when modal opens/closes
+  // Plan selection
+
+  const floorPlans = useUserFloorPlans();
+  const [selectedPlanId, setSelectedPlanId] = useState<string>('');
+
+  // Set selected plan when plans are loaded or modal opens
   useEffect(() => {
     if (isOpen) {
       setTitle('');
       setDescription('');
       setStatus(initialStatus);
       setError('');
-
       setChecklist([]);
       setNewChecklistItem('');
+      if (floorPlans.length > 0 && floorPlans[0]) {
+        setSelectedPlanId(floorPlans[0].id);
+      } else {
+        setSelectedPlanId('');
+      }
     }
-  }, [isOpen]);
+  }, [isOpen, floorPlans]);
+
+  // If plans load after modal is open, update selected plan
+  useEffect(() => {
+    if (isOpen && !selectedPlanId && floorPlans.length > 0 && floorPlans[0]) {
+      setSelectedPlanId(floorPlans[0].id);
+    }
+  }, [floorPlans, isOpen, selectedPlanId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (!title.trim()) {
       setError('Task title is required');
       return;
     }
-
-    // Position optional: only enforce if component was passed a position prop explicitly
-    if (position === null && typeof position !== 'undefined') {
-      setError('No position selected');
-      return;
-    }
-
     setIsSubmitting(true);
     setError('');
-
     try {
       const taskData: {
         title: string;
@@ -88,7 +97,11 @@ export const TaskCreationModal: React.FC<TaskCreationModalProps> = ({
       if (checklist.length > 0) {
         taskData.checklist = checklist;
       }
+      if (selectedPlanId) {
+        (taskData as any).planId = selectedPlanId;
+      }
       await onCreateTask(taskData);
+      toast.success('Task created successfully!');
       onClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create task');
@@ -247,6 +260,27 @@ export const TaskCreationModal: React.FC<TaskCreationModalProps> = ({
                   )}
                 </div>
 
+                {/* Plan Selector */}
+                <div>
+                  <label htmlFor="task-plan" className="block text-sm font-medium text-gray-700 mb-1">
+                    Plan
+                  </label>
+                  <select
+                    id="task-plan"
+                    value={selectedPlanId}
+                    onChange={e => setSelectedPlanId(e.target.value)}
+                    className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    disabled={isSubmitting || floorPlans.length === 0}
+                  >
+                    {floorPlans.length === 0 && <option value="">No plans available</option>}
+                    {floorPlans.map(fp => (
+                      <option key={fp.id} value={fp.id}>{fp.name}</option>
+                    ))}
+                  </select>
+                  {floorPlans.length === 0 && (
+                    <div className="text-xs text-red-600 mt-1">No plans available. Please create a plan first.</div>
+                  )}
+                </div>
                 {/* Status */}
                 <div>
                   <label htmlFor="task-status" className="block text-sm font-medium text-gray-700 mb-1">
@@ -273,7 +307,7 @@ export const TaskCreationModal: React.FC<TaskCreationModalProps> = ({
             <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
               <button
                 type="submit"
-                disabled={isSubmitting || !title.trim()}
+                disabled={isSubmitting || !title.trim() || floorPlans.length === 0}
                 className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? (

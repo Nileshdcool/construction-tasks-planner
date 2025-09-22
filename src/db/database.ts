@@ -141,7 +141,7 @@ async function createRxDBInstance(): Promise<DatabaseAPI> {
     console.log('  - createRxDatabase function:', typeof createRxDatabase);
     
     const db = await createRxDatabase({
-      name: 'construction_planner_db_v2', // Changed name to reset collection count
+      name: 'construction_planner_db_v6', // Another bump to ensure clean slate after schema sync
       storage: storage,
       ignoreDuplicate: true,
     });
@@ -340,6 +340,7 @@ export async function createTask(taskData: {
   status?: 'not-started' | 'in-progress' | 'blocked' | 'final-check' | 'done';
   position?: { x: number; y: number };
   userId: string;
+  planId?: string;
 }) {
   const db = await getDatabase();
   const now = new Date().toISOString();
@@ -351,16 +352,19 @@ export async function createTask(taskData: {
     description: taskData.description,
     status: taskData.status || 'not-started',
     position: taskData.position,
+    planId: taskData.planId,
     userId: taskData.userId,
     createdAt: now,
     updatedAt: now,
   });
 }
 
-export async function getTasksByUserId(userId: string) {
+export async function getTasksByUserId(userId: string, planId?: string) {
   const db = await getDatabase();
+  const selector: any = { userId };
+  if (planId) selector.planId = planId;
   return db.tasks.find({
-    selector: { userId }
+    selector
   }).exec();
 }
 
@@ -383,6 +387,7 @@ export async function updateTaskFields(taskId: string, updates: {
   description?: string;
   status?: 'not-started' | 'in-progress' | 'blocked' | 'final-check' | 'done';
   position?: { x: number; y: number };
+  planId?: string;
 }) {
   const db = await getDatabase();
   const task = await db.tasks.findOne({ selector: { id: taskId } }).exec();
@@ -393,6 +398,7 @@ export async function updateTaskFields(taskId: string, updates: {
     if (typeof updates.description === 'string') patch.description = updates.description;
     if (updates.status) patch.status = updates.status;
     if (updates.position) patch.position = updates.position;
+     if (typeof updates.planId === 'string') patch.planId = updates.planId;
     return task.incrementalPatch(patch);
   }
   return null;
@@ -550,12 +556,39 @@ export async function setActiveFloorPlan(floorPlanId: string, userId: string) {
 
 export async function deleteFloorPlan(floorPlanId: string) {
   const db = await getDatabase();
-  const floorPlan = await db.floorPlans.findOne({
-    selector: { id: floorPlanId }
-  }).exec();
-  
+  // Find and delete all tasks with this planId
+  const tasks = await db.tasks.find({ selector: { planId: floorPlanId } }).exec();
+  for (const task of tasks) {
+    // This will also delete associated checklist items
+    if (task.id) {
+      await exports.deleteTask(task.id);
+    }
+  }
+
+  // Now delete the floor plan itself
+  const floorPlan = await db.floorPlans.findOne({ selector: { id: floorPlanId } }).exec();
   if (floorPlan) {
     return floorPlan.remove();
+  }
+  return null;
+}
+
+// Update floor plan name
+export async function renameFloorPlan(floorPlanId: string, name: string) {
+  const db = await getDatabase();
+  const plan = await db.floorPlans.findOne({ selector: { id: floorPlanId } }).exec();
+  if (plan) {
+    return plan.incrementalPatch({ name });
+  }
+  return null;
+}
+
+// Replace floor plan image (keep other fields same)
+export async function replaceFloorPlanImage(floorPlanId: string, imageUrl: string, imageFileName: string) {
+  const db = await getDatabase();
+  const plan = await db.floorPlans.findOne({ selector: { id: floorPlanId } }).exec();
+  if (plan) {
+    return plan.incrementalPatch({ imageUrl, imageFileName });
   }
   return null;
 }

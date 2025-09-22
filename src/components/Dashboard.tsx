@@ -13,10 +13,11 @@ export const Dashboard: React.FC = () => {
 
   // Ensure tasks are loaded when arriving at dashboard
   useEffect(() => {
-    if (currentUser && tasks.length === 0) {
+    if (currentUser) {
       loadUserTasks(currentUser.id);
     }
-  }, [currentUser, tasks.length, loadUserTasks]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentUser, loadUserTasks]);
 
   // Derive analytics metrics
   const analytics = useMemo(() => {
@@ -100,52 +101,49 @@ export const Dashboard: React.FC = () => {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
-          {/* Hero Section with Cendas branding */}
-          <div className="cendas-gradient-primary rounded-lg p-8 text-white mb-8">
+          {/* Hero Section with Cendas branding - improved visibility */}
+          <div className="bg-cendas-primary-500 rounded-lg p-8 text-white mb-8 shadow-lg">
             <div className="text-center">
-              <h1 className="text-3xl font-bold mb-4">
+              <h1 className="text-3xl font-bold mb-4 text-white">
                 Cendas Construction Planner
               </h1>
-              <p className="text-cendas-primary-100 text-lg mb-6">
+              <p className="text-white text-lg mb-6">
                 Professional offline-first construction task management
               </p>
-              
               {/* Quick Actions */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto">
                 <Link
                   to="/floor-plan"
-                  className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-4 hover:bg-white/20 transition-all duration-200 group"
+                  className="bg-white/20 border border-white/30 rounded-lg p-4 hover:bg-white/30 transition-all duration-200 group"
                 >
-                  <div className="text-cendas-secondary-400 mb-2">
+                  <div className="text-yellow-300 mb-2">
                     <svg className="h-8 w-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                   </div>
-                  <h3 className="font-semibold mb-1">Floor Plans</h3>
-                  <p className="text-sm text-cendas-primary-100">Manage construction floor plans</p>
+                  <h3 className="font-semibold mb-1 text-white">Floor Plans</h3>
+                  <p className="text-sm text-white/80">Manage construction floor plans</p>
                 </Link>
-                
                 <Link
                   to="/tasks"
-                  className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-4 hover:bg-white/20 transition-all duration-200 group"
+                  className="bg-white/20 border border-white/30 rounded-lg p-4 hover:bg-white/30 transition-all duration-200 group"
                 >
-                  <div className="text-cendas-success-400 mb-2">
+                  <div className="text-green-300 mb-2">
                     <svg className="h-8 w-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                     </svg>
                   </div>
-                  <h3 className="font-semibold mb-1">Task Board</h3>
-                  <p className="text-sm text-cendas-primary-100">Track project tasks & progress</p>
+                  <h3 className="font-semibold mb-1 text-white">Task Board</h3>
+                  <p className="text-sm text-white/80">Track project tasks & progress</p>
                 </Link>
-                
-                <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-4">
-                  <div className="text-cendas-warning-400 mb-2">
+                <div className="bg-white/20 border border-white/30 rounded-lg p-4">
+                  <div className="text-yellow-200 mb-2">
                     <svg className="h-8 w-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                     </svg>
                   </div>
-                  <h3 className="font-semibold mb-1">Analytics</h3>
-                  <p className="text-sm text-cendas-primary-100">Project insights & reports</p>
+                  <h3 className="font-semibold mb-1 text-white">Analytics</h3>
+                  <p className="text-sm text-white/80">Project insights & reports</p>
                 </div>
               </div>
             </div>

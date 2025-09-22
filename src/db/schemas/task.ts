@@ -21,6 +21,7 @@ export interface TaskDocType {
     x: number; 
     y: number; 
   }; // For floor plan positioning
+  planId?: string; // Reference to floor plan (optional for backward compatibility)
   userId: string; // For user data isolation
   createdAt: string;
   updatedAt: string;
@@ -30,7 +31,7 @@ export interface TaskDocType {
 export const taskSchema = {
   title: 'task schema',
   description: 'Construction task management',
-  version: 0,
+  version: 0, // unified reset version
   primaryKey: 'id',
   type: 'object',
   properties: {
@@ -68,6 +69,10 @@ export const taskSchema = {
       },
       additionalProperties: false
     },
+    planId: {
+      type: 'string',
+      maxLength: 100
+    },
     userId: {
       type: 'string',
       maxLength: 100
@@ -84,6 +89,8 @@ export const taskSchema = {
     }
   },
   required: ['id', 'title', 'status', 'userId', 'createdAt', 'updatedAt'],
+  // NOTE: Dexie RxStorage does not allow indexes on non-required (optional) fields.
+  // planId is optional for backward compatibility; removed from indexes to avoid DXE1 error.
   indexes: [
     'userId',
     'status',
@@ -138,4 +145,8 @@ export const checklistItemSchema = {
     'order',
     'createdAt'
   ]
+  // migrationStrategies provided externally when adding collection
 } as const;
+
+// Migration strategies: identity migrations since we reset DB name but satisfy RxDB expectations
+// No migration strategies while in development reset mode.

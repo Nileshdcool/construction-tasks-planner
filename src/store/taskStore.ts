@@ -29,6 +29,7 @@ export interface Task {
   description?: string;
   status: TaskStatus;
   position?: { x: number; y: number };
+  planId?: string;
   userId: string;
   createdAt: string;
   updatedAt: string;
@@ -43,19 +44,21 @@ interface TaskState {
   error: string | null;
   
   // Actions
-  loadUserTasks: (userId: string) => Promise<void>;
+  loadUserTasks: (userId: string, planId?: string) => Promise<void>;
   createNewTask: (taskData: {
     title: string;
     description?: string;
     status?: TaskStatus;
     position?: { x: number; y: number };
     userId: string;
+    planId?: string;
   }) => Promise<Task | null>;
   updateTask: (taskId: string, updates: {
     title?: string;
     description?: string;
     status?: TaskStatus;
     position?: { x: number; y: number };
+    planId?: string;
   }) => Promise<void>;
   removeTask: (taskId: string) => Promise<void>;
   
@@ -79,12 +82,12 @@ export const useTaskStore = create<TaskState>()(
       error: null,
 
       // Load all tasks for a user
-      loadUserTasks: async (userId: string) => {
+      loadUserTasks: async (userId: string, planId?: string) => {
         console.log('loadUserTasks called for userId:', userId);
         set({ isLoading: true, error: null });
         
         try {
-          const taskDocs = await getTasksByUserId(userId);
+          const taskDocs = await getTasksByUserId(userId, planId);
           const tasks = taskDocs.map(doc => doc.toJSON());
           console.log('Loaded tasks:', tasks.length);
           

@@ -1,5 +1,8 @@
 import React from 'react';
+import toast from 'react-hot-toast';
+import { fireCelebration } from '../utils/celebration';
 import { Task, ChecklistItem, useTaskStore, TaskStatus } from '../store/taskStore';
+import { useUserFloorPlans } from '../store/floorPlanStore';
 import { ChecklistList } from './checklist/ChecklistList';
 
 interface TaskDetailsModalProps {
@@ -20,20 +23,31 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
   onAddChecklistItem,
   onToggleChecklistItem,
 }) => {
+  const floorPlans = useUserFloorPlans();
   const [newItem, setNewItem] = React.useState('');
   const [collapsed, setCollapsed] = React.useState(false);
   const [editTitle, setEditTitle] = React.useState(task ? task.title : '');
   const [editDescription, setEditDescription] = React.useState(task?.description || '');
   const [editStatus, setEditStatus] = React.useState<TaskStatus>(task ? task.status : 'not-started');
+
+  // Celebrate when all checklist items are completed
+  React.useEffect(() => {
+    if (isOpen && checklist.length > 0 && checklist.every(i => i.completed)) {
+      fireCelebration();
+    }
+  }, [isOpen, checklist]);
   const updateTask = useTaskStore(s => s.updateTask);
+  const [editPlanId, setEditPlanId] = React.useState(task?.planId || (floorPlans[0]?.id || ''));
 
   React.useEffect(() => {
     if (task) {
       setEditTitle(task.title);
       setEditDescription(task.description || '');
       setEditStatus(task.status);
+      setEditPlanId(task.planId || (floorPlans[0]?.id || ''));
     }
-  }, [task?.id]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [task?.id, floorPlans.length]);
   if (!isOpen || !task) return null;
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
@@ -41,11 +55,18 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
         <form onSubmit={async (e) => {
           e.preventDefault();
           if (!editTitle.trim()) return;
+          const prevStatus = task.status;
           await updateTask(task.id, {
             title: editTitle.trim(),
             ...(editDescription.trim() ? { description: editDescription.trim() } : {}),
-            status: editStatus
+            status: editStatus,
+            planId: editPlanId
           });
+          if (editStatus === 'done' && prevStatus !== 'done') {
+            fireCelebration();
+          }
+          toast.success('Task updated successfully!');
+          onClose();
         }}>
           <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
             <div className="flex items-center justify-between mb-4">
@@ -53,6 +74,20 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
               <button type="button" onClick={onClose} className="text-gray-400 hover:text-gray-600">
                 <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
+            </div>
+            {/* Plan Selector */}
+            <div className="mb-2">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Plan</label>
+              <select
+                value={editPlanId}
+                onChange={e => setEditPlanId(e.target.value)}
+                className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                {floorPlans.length === 0 && <option value="">No plans available</option>}
+                {floorPlans.map(fp => (
+                  <option key={fp.id} value={fp.id}>{fp.name}</option>
+                ))}
+              </select>
             </div>
             <div className="space-y-4">
               <div>
