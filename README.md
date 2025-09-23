@@ -104,9 +104,10 @@ The build artifacts will be stored in the `build/` directory.
 - **Persistent storage**: Browser-based state persistence
 
 ### Database & Offline Storage
-- **RxDB 16.19.0**: Reactive offline-first database
+- **RxDB 16.19.0**: Reactive offline-first database with modular service architecture
 - **IndexedDB**: Browser-based persistent storage
 - **Dexie 4.2.0**: IndexedDB wrapper for enhanced functionality
+- **Modular Services**: Domain-specific database services (user, task, checklist, floor plan)
 
 ### Styling & UI
 - **Tailwind CSS 3.4.0**: Utility-first CSS framework
@@ -128,8 +129,8 @@ The build artifacts will be stored in the `build/` directory.
 Based on essential features only, here are the estimated development times for a minimal viable product:
 
 ### Core Infrastructure (4-5 hours)
-- **Basic Database Setup** (2 hours): Simple RxDB configuration with essential schemas (users, tasks)
-- **Simple Authentication** (1 hour): Username-only login with basic state management
+- **Modular Database Setup** (2 hours): RxDB configuration with service-based architecture
+- **Simple Authentication** (1 hour): Username-only login with localStorage persistence
 - **Basic Routing** (1-2 hours): Simple React Router setup with minimal protection
 
 ### Essential Task Management (6-8 hours)
@@ -191,9 +192,12 @@ Based on essential features only, here are the estimated development times for a
 
 ### 5. Architecture Improvements
 - **Component Library**: Reusable component system with Storybook
-- **Service Layer**: Dedicated API layer and business logic separation
+- **Enhanced Service Layer**: Expand database services with caching and validation
 - **State Normalization**: Optimized state structure for better performance
 - **Code Splitting**: Lazy loading and bundle optimization
+- **Microservices Pattern**: Further modularization of business logic
+
+*Note: The current modular database architecture provides a solid foundation for these future enhancements.*
 
 ## 📝 Scripts
 
@@ -211,16 +215,74 @@ src/
 │   ├── Dashboard.tsx   # Main dashboard
 │   ├── Navigation.tsx  # App navigation
 │   └── ...            # Other components
-├── db/                 # Database layer
+├── db/                 # Modular database layer
+│   ├── core/          # Database connection and setup
+│   │   └── connection.ts  # RxDB configuration and instance management
+│   ├── services/      # Domain-specific database services
+│   │   ├── userService.ts      # User authentication and management
+│   │   ├── taskService.ts      # Task CRUD operations
+│   │   ├── checklistService.ts # Checklist item management
+│   │   └── floorPlanService.ts # Floor plan operations
 │   ├── schemas/       # RxDB schemas
-│   ├── database.ts    # Database configuration
-│   └── devUtils.ts    # Development utilities
+│   │   ├── user.ts    # User data schema
+│   │   ├── task.ts    # Task and checklist schemas
+│   │   └── floorPlan.ts # Floor plan schema
+│   ├── database.ts    # Legacy compatibility layer
+│   └── index.ts       # Main database exports
 ├── pages/             # Page components
 ├── store/             # Zustand stores
 ├── types/             # TypeScript type definitions
 ├── utils/             # Utility functions
 └── App.tsx           # Main application component
 ```
+
+## 🏗️ Database Architecture
+
+The application uses a **modular database architecture** built on RxDB for offline-first functionality:
+
+### **Core Database Features**
+- **Offline-First**: All data stored locally using IndexedDB
+- **Reactive**: Real-time updates using RxDB observables
+- **Schema Validation**: JSON Schema validation for all data
+- **Migration Support**: Automatic schema migrations
+
+### **Modular Service Layer**
+The database is organized into domain-specific services:
+
+#### **📁 Core (`db/core/`)**
+- **`connection.ts`**: Database setup, RxDB configuration, connection management
+
+#### **📁 Services (`db/services/`)**
+- **`userService.ts`**: User authentication, profile management
+- **`taskService.ts`**: Task creation, updates, deletion, status management
+- **`checklistService.ts`**: Checklist item operations, progress tracking
+- **`floorPlanService.ts`**: Floor plan upload, management, task positioning
+
+#### **📁 Schemas (`db/schemas/`)**
+- **`user.ts`**: User data structure and validation
+- **`task.ts`**: Task and checklist item schemas
+- **`floorPlan.ts`**: Floor plan metadata and validation
+
+### **Usage Examples**
+
+```typescript
+// Import all database functions
+import { createTask, getTasksByUserId, createUser } from '../db';
+
+// Or import from specific services
+import { createTask } from '../db/services/taskService';
+import { createUser } from '../db/services/userService';
+
+// Backward compatibility (legacy)
+import { createTask } from '../db/database';
+```
+
+### **Benefits of Modular Architecture**
+- **🔧 Maintainability**: Each service handles a specific domain
+- **📦 Tree Shaking**: Better bundle optimization
+- **🧪 Testability**: Easier to unit test individual services
+- **👥 Team Development**: Multiple developers can work on different services
+- **🚀 Performance**: Faster TypeScript compilation with smaller modules
 
 ## 🤝 Contributing
 

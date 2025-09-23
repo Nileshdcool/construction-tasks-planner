@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { UserDocType } from '../db/schemas/user';
-import { initializeDatabase } from '../db/database';
+import { initializeDatabase } from '../db';
 
 interface AuthState {
   currentUser: UserDocType | null;

@@ -1,6 +1,6 @@
 // Debug component to view RxDB data in real-time
 import React, { useState, useEffect } from 'react';
-import { getDatabase } from '../db/database';
+import { getDatabase } from '../db';
 
 interface UserData {
   id: string;

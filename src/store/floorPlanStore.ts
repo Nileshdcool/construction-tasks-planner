@@ -9,7 +9,7 @@ import {
   renameFloorPlan,
   replaceFloorPlanImage,
   updateFloorPlanMetadata
-} from '../db/database';
+} from '../db';
 
 export interface FloorPlan {
   id: string;

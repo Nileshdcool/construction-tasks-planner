@@ -119,6 +119,20 @@ export const TaskBoardView: React.FC = () => {
           await floorPlanStore.useFloorPlanStore.getState().loadUserFloorPlans(currentUser.id);
         }
         await taskStore.loadUserTasks(currentUser.id);
+        
+        // Load checklist items for all tasks to show correct progress indicators
+        // Need to wait for tasks to be loaded first, then get them from the store
+        const loadedTasks = useTaskStore.getState().tasks;
+        if (loadedTasks.length > 0) {
+          // Load checklist items for all tasks in parallel for better performance
+          const checklistPromises = loadedTasks.map(task => 
+            taskStore.loadTaskChecklist(task.id).catch(error => {
+              console.warn(`Failed to load checklist for task ${task.id}:`, error);
+              return []; // Return empty array on error to prevent Promise.all from failing
+            })
+          );
+          await Promise.all(checklistPromises);
+        }
       } catch (error) {
         console.error('Error loading task or plan data:', error);
       } finally {
@@ -128,10 +142,12 @@ export const TaskBoardView: React.FC = () => {
     loadData();
   }, [currentUser]);
 
-  const handleTaskClick = useCallback((task: Task) => {
+  const handleTaskClick = useCallback(async (task: Task) => {
     setSelectedTask(task);
     setDetailsOpen(true);
-  }, []);
+    // Load checklist items for the selected task
+    await taskStore.loadTaskChecklist(task.id);
+  }, [taskStore]);
 
   const handleCloseDetails = useCallback(() => {
     setDetailsOpen(false);
@@ -175,9 +191,15 @@ export const TaskBoardView: React.FC = () => {
       ...(data.description ? { description: data.description } : {})
     };
     const newTask = await taskStore.createNewTask(baseTask);
-    if (newTask && data.checklist && data.checklist.length) {
-      for (const item of data.checklist) {
-        await taskStore.addChecklistItem(newTask.id, item);
+    if (newTask) {
+      // Load the default checklist items that were automatically created
+      await taskStore.loadTaskChecklist(newTask.id);
+      
+      // Add any additional checklist items from the modal
+      if (data.checklist && data.checklist.length) {
+        for (const item of data.checklist) {
+          await taskStore.addChecklistItem(newTask.id, item);
+        }
       }
     }
   }, [currentUser, taskStore]);

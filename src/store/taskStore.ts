@@ -10,7 +10,7 @@ import {
   updateChecklistItemTitle,
   deleteChecklistItem,
   updateTaskFields
-} from '../db/database';
+} from '../db';
 
 export type TaskStatus = 'not-started' | 'in-progress' | 'blocked' | 'final-check' | 'done';
 export type ChecklistItemStatus = 'not-started' | 'in-progress' | 'blocked' | 'final-check' | 'done' | string;
