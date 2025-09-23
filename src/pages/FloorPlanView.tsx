@@ -102,13 +102,16 @@ export const FloorPlanView: React.FC = () => {
 
   const selectedTask = tasks.find(t => t.id === selectedTaskId) || null;
   const checklistItems: ChecklistItem[] = selectedTask ? useTaskStore.getState().checklistItems.filter(ci => ci.taskId === selectedTask.id) : [];
-  const handleAddChecklistItem = (title: string) => {
+  const handleAddChecklistItem = (title: string, status?: string) => {
     if (selectedTask) {
-      useTaskStore.getState().addChecklistItem(selectedTask.id, title);
+      useTaskStore.getState().addChecklistItem(selectedTask.id, title, status);
     }
   };
   const handleToggleChecklistItem = (itemId: string, completed: boolean) => {
     useTaskStore.getState().toggleChecklistItem(itemId, completed);
+  };
+  const handleUpdateChecklistItemStatus = (itemId: string, status: string) => {
+    useTaskStore.getState().updateChecklistItemStatus(itemId, status);
   };
 
   if (!currentUser) {
@@ -259,6 +262,7 @@ export const FloorPlanView: React.FC = () => {
         onClose={() => setShowDetails(false)}
         onAddChecklistItem={handleAddChecklistItem}
         onToggleChecklistItem={handleToggleChecklistItem}
+        onUpdateChecklistItemStatus={handleUpdateChecklistItemStatus}
       />
     </div>
   );

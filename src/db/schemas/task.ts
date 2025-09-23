@@ -1,12 +1,16 @@
 // Task status options as per requirements
 export type TaskStatus = 'not-started' | 'in-progress' | 'blocked' | 'final-check' | 'done';
 
+// Checklist item status options with predefined statuses
+export type ChecklistItemStatus = 'not-started' | 'blocked' | 'final-installation' | 'done' | string; // string allows custom statuses
+
 // TypeScript interfaces for our data models
 export interface ChecklistItemDocType {
   id: string;
   taskId: string; // Reference to parent task
   title: string;
   completed: boolean;
+  status: ChecklistItemStatus; // New status field
   order: number; // For ordering checklist items
   createdAt: string;
   updatedAt: string;
@@ -102,7 +106,7 @@ export const taskSchema = {
 export const checklistItemSchema = {
   title: 'checklist item schema',
   description: 'Task checklist items',
-  version: 0,
+  version: 1, // Increment version for schema change
   primaryKey: 'id',
   type: 'object',
   properties: {
@@ -122,6 +126,11 @@ export const checklistItemSchema = {
       type: 'boolean',
       default: false
     },
+    status: {
+      type: 'string',
+      maxLength: 50,
+      default: 'not-started'
+    },
     order: {
       type: 'number',
       minimum: 0,
@@ -139,11 +148,12 @@ export const checklistItemSchema = {
       maxLength: 50
     }
   },
-  required: ['id', 'taskId', 'title', 'completed', 'order', 'createdAt', 'updatedAt'],
+  required: ['id', 'taskId', 'title', 'completed', 'status', 'order', 'createdAt', 'updatedAt'],
   indexes: [
     'taskId',
     'order',
-    'createdAt'
+    'createdAt',
+    'status'
   ]
   // migrationStrategies provided externally when adding collection
 } as const;

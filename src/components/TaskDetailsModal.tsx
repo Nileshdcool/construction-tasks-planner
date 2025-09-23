@@ -1,17 +1,19 @@
 import React from 'react';
 import toast from 'react-hot-toast';
 import { fireCelebration } from '../utils/celebration';
-import { Task, ChecklistItem, useTaskStore, TaskStatus } from '../store/taskStore';
+import { Task, ChecklistItem, useTaskStore, TaskStatus, ChecklistItemStatus } from '../store/taskStore';
 import { useUserFloorPlans } from '../store/floorPlanStore';
 import { ChecklistList } from './checklist/ChecklistList';
+import { ChecklistItemStatusSelector } from './ChecklistItemStatusSelector';
 
 interface TaskDetailsModalProps {
   isOpen: boolean;
   task: Task | null;
   checklist: ChecklistItem[];
   onClose: () => void;
-  onAddChecklistItem: (title: string) => void;
+  onAddChecklistItem: (title: string, status?: ChecklistItemStatus) => void;
   onToggleChecklistItem: (itemId: string, completed: boolean) => void;
+  onUpdateChecklistItemStatus?: (itemId: string, status: ChecklistItemStatus) => void;
 }
 
 
@@ -22,9 +24,12 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
   onClose,
   onAddChecklistItem,
   onToggleChecklistItem,
+  onUpdateChecklistItemStatus,
 }) => {
   const floorPlans = useUserFloorPlans();
   const [newItem, setNewItem] = React.useState('');
+  const [newItemStatus, setNewItemStatus] = React.useState<ChecklistItemStatus>('not-started');
+  const [showStatusSelector, setShowStatusSelector] = React.useState(false);
   const [collapsed, setCollapsed] = React.useState(false);
   const [editTitle, setEditTitle] = React.useState(task ? task.title : '');
   const [editDescription, setEditDescription] = React.useState(task?.description || '');
@@ -138,40 +143,71 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
                 </div>
                 {!collapsed && (
                   <div className="p-4 pt-3">
-                    <div className="flex mb-3">
+                    <div className="space-y-3 mb-3">
                       <input
                         type="text"
                         value={newItem}
                         onChange={e => setNewItem(e.target.value)}
-                        className="flex-1 border border-gray-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent mr-2"
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         placeholder="Add new checklist item..."
                         onKeyDown={e => {
                           if (e.key === 'Enter' && newItem.trim()) {
-                            onAddChecklistItem(newItem.trim());
+                            onAddChecklistItem(newItem.trim(), newItemStatus);
                             setNewItem('');
+                            setNewItemStatus('not-started');
+                            setShowStatusSelector(false);
                             e.preventDefault();
                           }
                         }}
                       />
-                      <button
-                        type="button"
-                        className="inline-flex items-center bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-md px-3 py-1 text-sm font-medium transition"
-                        disabled={!newItem.trim()}
-                        onClick={() => {
-                          if (newItem.trim()) {
-                            onAddChecklistItem(newItem.trim());
-                            setNewItem('');
-                          }
-                        }}
-                      >
-                        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
-                        Add
-                      </button>
+                      
+                      {/* Status selector toggle */}
+                      <div className="flex items-center justify-between">
+                        <button
+                          type="button"
+                          onClick={() => setShowStatusSelector(!showStatusSelector)}
+                          className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                        >
+                          {showStatusSelector ? 'Hide status options' : 'Set status'}
+                        </button>
+                        
+                        <button
+                          type="button"
+                          className="inline-flex items-center bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-md px-3 py-1 text-sm font-medium transition"
+                          disabled={!newItem.trim()}
+                          onClick={() => {
+                            if (newItem.trim()) {
+                              onAddChecklistItem(newItem.trim(), newItemStatus);
+                              setNewItem('');
+                              setNewItemStatus('not-started');
+                              setShowStatusSelector(false);
+                            }
+                          }}
+                        >
+                          <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
+                          Add
+                        </button>
+                      </div>
+                      
+                      {/* Status selector */}
+                      {showStatusSelector && (
+                        <div className="border border-gray-200 rounded-md p-3 bg-gray-50">
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Status for new item:
+                          </label>
+                          <ChecklistItemStatusSelector
+                            value={newItemStatus}
+                            onChange={setNewItemStatus}
+                            showCustomInput={true}
+                          />
+                        </div>
+                      )}
                     </div>
                     <ChecklistList
                       items={checklist}
                       mode="view"
                       onToggleItem={(id, completed) => onToggleChecklistItem(id, completed)}
+                      {...(onUpdateChecklistItemStatus ? { onUpdateItemStatus: onUpdateChecklistItemStatus } : {})}
                     />
                   </div>
                 )}

@@ -6,18 +6,21 @@ import {
   createChecklistItem,
   getChecklistItemsByTaskId,
   updateChecklistItemCompleted,
+  updateChecklistItemStatus,
   deleteChecklistItem,
   updateTaskFields
 } from '../db/database';
 
 // Types from task schema
 export type TaskStatus = 'not-started' | 'in-progress' | 'blocked' | 'final-check' | 'done';
+export type ChecklistItemStatus = 'not-started' | 'blocked' | 'final-installation' | 'done' | string;
 
 export interface ChecklistItem {
   id: string;
   taskId: string;
   title: string;
   completed: boolean;
+  status: ChecklistItemStatus;
   order: number;
   createdAt: string;
   updatedAt: string;
@@ -63,7 +66,8 @@ interface TaskState {
   removeTask: (taskId: string) => Promise<void>;
   
   // Checklist actions
-  addChecklistItem: (taskId: string, title: string) => Promise<ChecklistItem | null>;
+  addChecklistItem: (taskId: string, title: string, status?: ChecklistItemStatus) => Promise<ChecklistItem | null>;
+  updateChecklistItemStatus: (itemId: string, status: ChecklistItemStatus) => Promise<void>;
   toggleChecklistItem: (itemId: string, completed: boolean) => Promise<void>;
   removeChecklistItem: (itemId: string) => Promise<void>;
   loadTaskChecklist: (taskId: string) => Promise<ChecklistItem[]>;
@@ -169,11 +173,11 @@ export const useTaskStore = create<TaskState>()(
       },
 
       // Add checklist item
-      addChecklistItem: async (taskId, title) => {
+      addChecklistItem: async (taskId, title, status = 'not-started') => {
         set({ error: null });
         
         try {
-          const newItemDoc = await createChecklistItem({ taskId, title });
+          const newItemDoc = await createChecklistItem({ taskId, title, status });
           const newItem = newItemDoc.toJSON();
           
           set(state => ({ 
@@ -190,6 +194,31 @@ export const useTaskStore = create<TaskState>()(
         }
       },
 
+      // Update checklist item status
+      updateChecklistItemStatus: async (itemId, status) => {
+        set({ error: null });
+        
+        try {
+          await updateChecklistItemStatus(itemId, status);
+          
+          set(state => ({
+            checklistItems: state.checklistItems.map(item => {
+              if (item.id === itemId) {
+                // Sync completion with status
+                const completed = status === 'done';
+                return { ...item, status, completed };
+              }
+              return item;
+            })
+          }));
+        } catch (error) {
+          console.error('Error updating checklist item status:', error);
+          set({ 
+            error: error instanceof Error ? error.message : 'Failed to update checklist item status'
+          });
+        }
+      },
+
       // Toggle checklist item completion
       toggleChecklistItem: async (itemId, completed) => {
         set({ error: null });
@@ -198,9 +227,15 @@ export const useTaskStore = create<TaskState>()(
           await updateChecklistItemCompleted(itemId, completed);
           
           set(state => ({
-            checklistItems: state.checklistItems.map(item =>
-              item.id === itemId ? { ...item, completed } : item
-            )
+            checklistItems: state.checklistItems.map(item => {
+              if (item.id === itemId) {
+                // Sync status with completion
+                const newStatus = completed ? 'done' : 
+                  (item.status === 'done' ? 'not-started' : item.status);
+                return { ...item, completed, status: newStatus };
+              }
+              return item;
+            })
           }));
         } catch (error) {
           console.error('Error updating checklist item:', error);

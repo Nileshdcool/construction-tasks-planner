@@ -145,14 +145,18 @@ export const TaskBoardView: React.FC = () => {
     setSelectedTask(null);
   }, []);
 
-  const handleAddChecklistItem = useCallback((title: string) => {
+  const handleAddChecklistItem = useCallback((title: string, status?: string) => {
     if (selectedTask) {
-      taskStore.addChecklistItem(selectedTask.id, title);
+      taskStore.addChecklistItem(selectedTask.id, title, status);
     }
   }, [selectedTask, taskStore]);
 
   const handleToggleChecklistItem = useCallback((itemId: string, completed: boolean) => {
     taskStore.toggleChecklistItem(itemId, completed);
+  }, [taskStore]);
+
+  const handleUpdateChecklistItemStatus = useCallback((itemId: string, status: string) => {
+    taskStore.updateChecklistItemStatus(itemId, status);
   }, [taskStore]);
 
 
@@ -307,6 +311,7 @@ export const TaskBoardView: React.FC = () => {
         onClose={handleCloseDetails}
         onAddChecklistItem={handleAddChecklistItem}
         onToggleChecklistItem={handleToggleChecklistItem}
+        onUpdateChecklistItemStatus={handleUpdateChecklistItemStatus}
       />
       <TaskCreationModal
         isOpen={showCreateModal}

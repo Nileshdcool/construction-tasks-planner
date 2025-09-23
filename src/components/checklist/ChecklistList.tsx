@@ -2,7 +2,7 @@ import React from 'react';
 import { ChecklistListProps, AnyChecklistItem } from './ChecklistTypes';
 import { ChecklistRow } from './ChecklistRow';
 
-export const ChecklistList: React.FC<ChecklistListProps> = ({ items, mode, onToggleItem, onRemoveTempItem }) => {
+export const ChecklistList: React.FC<ChecklistListProps> = ({ items, mode, onToggleItem, onRemoveTempItem, onUpdateItemStatus }) => {
   if (!items.length) return null;
   return (
     <ul className="divide-y divide-gray-100 mb-2">
@@ -12,6 +12,7 @@ export const ChecklistList: React.FC<ChecklistListProps> = ({ items, mode, onTog
           item={item}
           mode={mode}
           {...(mode === 'view' && item.id && onToggleItem ? { onToggle: (completed: boolean) => onToggleItem(item.id!, completed) } : {})}
+          {...(mode === 'view' && item.id && onUpdateItemStatus ? { onStatusChange: (status: string) => onUpdateItemStatus(item.id!, status) } : {})}
           {...(mode === 'create' && onRemoveTempItem ? { onRemove: () => onRemoveTempItem(idx) } : {})}
         />
       ))}

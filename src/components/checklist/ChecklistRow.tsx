@@ -1,5 +1,8 @@
-import React from 'react';
-import { ChecklistRowProps, computeStatus, statusMeta } from './ChecklistTypes';
+import React, { useState } from 'react';
+import { ChecklistRowProps, computeStatus } from './ChecklistTypes';
+import { ChecklistItemStatusBadge } from '../ChecklistItemStatusBadge';
+import { ChecklistItemStatusSelector } from '../ChecklistItemStatusSelector';
+import { ChecklistItemStatus } from '../../store/taskStore';
 
 const iconFor = (state: ReturnType<typeof computeStatus>) => {
   if (state === 'blocked') {
@@ -30,10 +33,19 @@ const iconFor = (state: ReturnType<typeof computeStatus>) => {
   );
 };
 
-export const ChecklistRow: React.FC<ChecklistRowProps> = ({ item, mode, onToggle, onRemove }) => {
+export const ChecklistRow: React.FC<ChecklistRowProps> = ({ item, mode, onToggle, onRemove, onStatusChange }) => {
+  const [editingStatus, setEditingStatus] = useState(false);
   const state = computeStatus(item);
-  const meta = statusMeta(state);
   const completed = !!item.completed;
+  const currentStatus = ('status' in item && item.status) ? item.status : 'not-started';
+
+  const handleStatusChange = (newStatus: ChecklistItemStatus) => {
+    if (onStatusChange) {
+      onStatusChange(newStatus);
+    }
+    setEditingStatus(false);
+  };
+
   return (
     <li className="flex items-start py-3 px-6 group">
       {mode === 'view' ? (
@@ -53,20 +65,47 @@ export const ChecklistRow: React.FC<ChecklistRowProps> = ({ item, mode, onToggle
         <span className="mt-1 mr-3">{iconFor(state)}</span>
       )}
       <div className="flex-1 min-w-0">
-        <div className={`font-medium text-base ${state === 'blocked' ? 'text-red-700 font-semibold' : completed ? 'text-green-700 line-through' : 'text-gray-900'}`}>{item.title}</div>
-        <div className="text-xs mt-0.5 flex items-center">
-          <span className={
-            state === 'blocked' ? 'text-red-600' :
-            state === 'completed' ? 'text-green-600' :
-            state === 'final' ? 'text-blue-600' : 'text-gray-400'
-          }>{meta.label}</span>
+        <div className={`font-medium text-base ${state === 'blocked' ? 'text-red-700 font-semibold' : completed ? 'text-green-700 line-through' : 'text-gray-900'}`}>
+          {item.title}
         </div>
+        <div className="text-xs mt-1 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <ChecklistItemStatusBadge status={currentStatus} size="sm" />
+            {mode === 'view' && onStatusChange && !editingStatus && (
+              <button
+                onClick={() => setEditingStatus(true)}
+                className="text-blue-600 hover:text-blue-700 text-xs"
+              >
+                Change
+              </button>
+            )}
+          </div>
+        </div>
+        {editingStatus && mode === 'view' && (
+          <div className="mt-2 p-2 bg-gray-50 border border-gray-200 rounded-md">
+            <div className="text-xs font-medium text-gray-700 mb-2">Change status:</div>
+            <ChecklistItemStatusSelector
+              value={currentStatus}
+              onChange={handleStatusChange}
+              showCustomInput={true}
+              className="text-xs"
+            />
+            <div className="flex gap-2 mt-2">
+              <button
+                onClick={() => setEditingStatus(false)}
+                className="text-xs text-gray-600 hover:text-gray-700"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
       </div>
       {mode === 'create' && onRemove && (
         <button
           type="button"
-            className="ml-2 text-xs text-red-500 hover:underline opacity-70 group-hover:opacity-100"
-            onClick={onRemove}
+          className="ml-2 text-xs text-red-500 hover:underline opacity-70 group-hover:opacity-100"
+          onClick={onRemove}
         >
           Remove
         </button>

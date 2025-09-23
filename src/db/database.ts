@@ -166,7 +166,16 @@ async function createRxDBInstance(): Promise<DatabaseAPI> {
         schema: taskSchema
       },
       checklistItems: {
-        schema: checklistItemSchema
+        schema: checklistItemSchema,
+        migrationStrategies: {
+          // Migration from version 0 to version 1
+          1: function (oldDoc: any) {
+            // Add status field with default value
+            const newDoc = { ...oldDoc };
+            newDoc.status = oldDoc.status || 'not-started';
+            return newDoc;
+          }
+        }
       },
       floorPlans: {
         schema: floorPlanSchema,
@@ -452,6 +461,7 @@ export async function deleteTask(taskId: string) {
 export async function createChecklistItem(itemData: {
   taskId: string;
   title: string;
+  status?: string;
   order?: number;
 }) {
   const db = await getDatabase();
@@ -470,6 +480,7 @@ export async function createChecklistItem(itemData: {
     taskId: itemData.taskId,
     title: itemData.title,
     completed: false,
+    status: itemData.status || 'not-started',
     order,
     createdAt: now,
     updatedAt: now,
@@ -491,7 +502,38 @@ export async function updateChecklistItemCompleted(itemId: string, completed: bo
   
   if (item) {
     const now = new Date().toISOString();
-    return item.incrementalPatch({ completed, updatedAt: now });
+    const updates: any = { completed, updatedAt: now };
+    
+    // Sync status with completion: if checking, set to 'done'; if unchecking, set to 'not-started'
+    if (completed) {
+      updates.status = 'done';
+    } else {
+      // Only change status to 'not-started' if it was 'done', preserve other statuses
+      const currentStatus = item.status || 'not-started';
+      if (currentStatus === 'done') {
+        updates.status = 'not-started';
+      }
+    }
+    
+    return item.incrementalPatch(updates);
+  }
+  return null;
+}
+
+export async function updateChecklistItemStatus(itemId: string, status: string) {
+  const db = await getDatabase();
+  const item = await db.checklistItems.findOne({
+    selector: { id: itemId }
+  }).exec();
+  
+  if (item) {
+    const now = new Date().toISOString();
+    const updates: any = { status, updatedAt: now };
+    
+    // Sync completion with status: 'done' should be checked, others should be unchecked
+    updates.completed = status === 'done';
+    
+    return item.incrementalPatch(updates);
   }
   return null;
 }
