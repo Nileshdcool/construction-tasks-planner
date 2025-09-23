@@ -3,6 +3,7 @@ import toast from 'react-hot-toast';
 import { useUserFloorPlans } from '../store/floorPlanStore';
 import { TaskStatus } from '../store/taskStore';
 import { ChecklistList } from './checklist/ChecklistList';
+import { getDefaultChecklistItems } from '../utils/defaultChecklist';
 
 interface FloorPlanPosition {
   x: number;
@@ -39,7 +40,7 @@ export const TaskCreationModal: React.FC<TaskCreationModalProps> = ({
   const [error, setError] = useState('');
   const [checklist, setChecklist] = useState<string[]>([]);
   const [newChecklistItem, setNewChecklistItem] = useState('');
-  const [checklistCollapsed, setChecklistCollapsed] = useState(false);
+  const [checklistCollapsed, setChecklistCollapsed] = useState(true);
 
   // Plan selection
 
@@ -53,15 +54,21 @@ export const TaskCreationModal: React.FC<TaskCreationModalProps> = ({
       setDescription('');
       setStatus(initialStatus);
       setError('');
-      setChecklist([]);
+      
+      // Initialize checklist with default items
+      const defaultItems = getDefaultChecklistItems();
+      setChecklist(defaultItems.map(item => item.title));
+      
       setNewChecklistItem('');
+      setChecklistCollapsed(true); // Ensure checklist is collapsed by default
+      
       if (floorPlans.length > 0 && floorPlans[0]) {
         setSelectedPlanId(floorPlans[0].id);
       } else {
         setSelectedPlanId('');
       }
     }
-  }, [isOpen, floorPlans]);
+  }, [isOpen, floorPlans, initialStatus]);
 
   // If plans load after modal is open, update selected plan
   useEffect(() => {

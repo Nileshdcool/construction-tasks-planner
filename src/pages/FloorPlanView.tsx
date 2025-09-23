@@ -86,10 +86,18 @@ export const FloorPlanView: React.FC = () => {
         // Load the default checklist items that were automatically created
         await useTaskStore.getState().loadTaskChecklist(newTask.id);
         
-        // Add any additional checklist items from the modal
+        // Add any additional checklist items from the modal that are NOT default items
         if (taskData.checklist && taskData.checklist.length > 0) {
+          // Import default checklist to filter out duplicates
+          const { getDefaultChecklistItems } = await import('../utils/defaultChecklist');
+          const defaultItems = getDefaultChecklistItems();
+          const defaultTitles = defaultItems.map(item => item.title);
+          
           for (const item of taskData.checklist) {
-            await useTaskStore.getState().addChecklistItem(newTask.id, item);
+            // Only add if it's not a default item
+            if (!defaultTitles.includes(item)) {
+              await useTaskStore.getState().addChecklistItem(newTask.id, item);
+            }
           }
         }
       }

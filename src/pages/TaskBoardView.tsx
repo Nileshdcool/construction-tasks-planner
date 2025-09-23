@@ -229,10 +229,18 @@ export const TaskBoardView: React.FC = () => {
       // Load the default checklist items that were automatically created
       await taskStore.loadTaskChecklist(newTask.id);
       
-      // Add any additional checklist items from the modal
+      // Add any additional checklist items from the modal that are NOT default items
       if (data.checklist && data.checklist.length) {
+        // Import default checklist to filter out duplicates
+        const { getDefaultChecklistItems } = await import('../utils/defaultChecklist');
+        const defaultItems = getDefaultChecklistItems();
+        const defaultTitles = defaultItems.map(item => item.title);
+        
         for (const item of data.checklist) {
-          await taskStore.addChecklistItem(newTask.id, item);
+          // Only add if it's not a default item
+          if (!defaultTitles.includes(item)) {
+            await taskStore.addChecklistItem(newTask.id, item);
+          }
         }
       }
     }
