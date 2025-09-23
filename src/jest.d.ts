@@ -1,7 +1,6 @@
 /// <reference types="jest" />
 /// <reference types="@testing-library/jest-dom" />
 
-// Ensure Jest globals are available
 declare global {
   var test: jest.It;
   var it: jest.It;

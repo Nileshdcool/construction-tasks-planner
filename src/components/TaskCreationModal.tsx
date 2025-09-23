@@ -37,7 +37,6 @@ export const TaskCreationModal: React.FC<TaskCreationModalProps> = ({
   const [status, setStatus] = useState<TaskStatus>(initialStatus);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
-  // Checklist state
   const [checklist, setChecklist] = useState<string[]>([]);
   const [newChecklistItem, setNewChecklistItem] = useState('');
   const [checklistCollapsed, setChecklistCollapsed] = useState(false);

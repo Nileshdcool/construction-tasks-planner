@@ -1,4 +1,3 @@
-// User document type - this represents the data structure stored in RxDB
 export interface UserDocType {
   id: string;
   username: string;
@@ -6,7 +5,6 @@ export interface UserDocType {
   lastLoginAt: string;
 }
 
-// RxDB Schema definition for users collection
 export const userSchema = {
   title: 'User',
   description: 'User schema for construction planner app',

@@ -1,17 +1,14 @@
-// Task status options as per requirements
 export type TaskStatus = 'not-started' | 'in-progress' | 'blocked' | 'final-check' | 'done';
 
-// Checklist item status options with predefined statuses
-export type ChecklistItemStatus = 'not-started' | 'blocked' | 'final-installation' | 'done' | string; // string allows custom statuses
+export type ChecklistItemStatus = 'not-started' | 'blocked' | 'final-installation' | 'done' | string;
 
-// TypeScript interfaces for our data models
 export interface ChecklistItemDocType {
   id: string;
-  taskId: string; // Reference to parent task
+  taskId: string;
   title: string;
   completed: boolean;
-  status: ChecklistItemStatus; // New status field
-  order: number; // For ordering checklist items
+  status: ChecklistItemStatus;
+  order: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -24,18 +21,17 @@ export interface TaskDocType {
   position?: { 
     x: number; 
     y: number; 
-  }; // For floor plan positioning
-  planId?: string; // Reference to floor plan (optional for backward compatibility)
-  userId: string; // For user data isolation
+  };
+  planId?: string;
+  userId: string;
   createdAt: string;
   updatedAt: string;
 }
 
-// RxDB Schema for Tasks
 export const taskSchema = {
   title: 'task schema',
   description: 'Construction task management',
-  version: 0, // unified reset version
+  version: 0,
   primaryKey: 'id',
   type: 'object',
   properties: {
@@ -93,8 +89,6 @@ export const taskSchema = {
     }
   },
   required: ['id', 'title', 'status', 'userId', 'createdAt', 'updatedAt'],
-  // NOTE: Dexie RxStorage does not allow indexes on non-required (optional) fields.
-  // planId is optional for backward compatibility; removed from indexes to avoid DXE1 error.
   indexes: [
     'userId',
     'status',
@@ -102,11 +96,10 @@ export const taskSchema = {
   ]
 } as const;
 
-// RxDB Schema for Checklist Items
 export const checklistItemSchema = {
   title: 'checklist item schema',
   description: 'Task checklist items',
-  version: 1, // Increment version for schema change
+  version: 1,
   primaryKey: 'id',
   type: 'object',
   properties: {
@@ -155,8 +148,4 @@ export const checklistItemSchema = {
     'createdAt',
     'status'
   ]
-  // migrationStrategies provided externally when adding collection
 } as const;
-
-// Migration strategies: identity migrations since we reset DB name but satisfy RxDB expectations
-// No migration strategies while in development reset mode.

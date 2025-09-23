@@ -101,7 +101,6 @@ export const ChecklistItemStatusSelector: React.FC<ChecklistItemStatusSelectorPr
   );
 };
 
-// Helper functions to get CSS classes for different status colors
 function getSelectedClasses(color: string): string {
   const colorMap = {
     gray: 'bg-gray-100 border-gray-400 text-gray-800',

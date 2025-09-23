@@ -1,23 +1,21 @@
-// Floor plan document type
 export interface FloorPlanDocType {
   id: string;
-  userId: string; // For user data isolation
+  userId: string;
   name: string;
-  description?: string; // Optional description for the floor plan
-  imageUrl: string; // Could be base64 or file path
+  description?: string;
+  imageUrl: string;
   imageFileName: string;
   uploadedAt: string;
-  updatedAt: string; // Track when plan was last modified
-  isActive: boolean; // Only one active floor plan per user
-  tags?: string[]; // Optional tags for categorization
-  version?: number; // Version number for tracking changes
+  updatedAt: string;
+  isActive: boolean;
+  tags?: string[];
+  version?: number;
 }
 
-// RxDB Schema for Floor Plans
 export const floorPlanSchema = {
   title: 'floor plan schema',
   description: 'Construction floor plan management',
-  version: 1, // Incremented version for schema change
+  version: 1,
   primaryKey: 'id',
   type: 'object',
   properties: {
@@ -39,7 +37,7 @@ export const floorPlanSchema = {
     },
     imageUrl: {
       type: 'string',
-      maxLength: 5000000 // Increased to 5MB worth of base64 data for large floor plans
+      maxLength: 5000000
     },
     imageFileName: {
       type: 'string',

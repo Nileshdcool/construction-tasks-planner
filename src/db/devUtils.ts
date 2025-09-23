@@ -1,7 +1,5 @@
-// Development utility to manage RxDB database
 import { closeDatabase, resetDatabase } from './database';
 
-// Clear IndexedDB for fresh start (manual cleanup only)
 export const clearIndexedDB = async () => {
   if (typeof window !== 'undefined' && window.indexedDB) {
     try {
@@ -98,7 +96,6 @@ export const clearIndexedDB = async () => {
   }
 };
 
-// Development utilities (manual tools only)
 export const initDevUtils = () => {
   if (process.env.NODE_ENV === 'development' && typeof window !== 'undefined') {
     window.rxdbUtils = {
@@ -112,6 +109,5 @@ export const initDevUtils = () => {
     console.log('  window.rxdbUtils.resetDatabase() - Reset and recreate database');
     console.log('  window.rxdbUtils.clearIndexedDB() - Clear all IndexedDB data');
     
-    // No auto-cleanup - only manual tools available
   }
 };

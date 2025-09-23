@@ -1,4 +1,3 @@
-// ✅ RxDB v16.19.0 with dynamic imports to handle export variations
 import { userSchema } from './schemas/user';
 import { taskSchema, checklistItemSchema } from './schemas/task';
 import { floorPlanSchema } from './schemas/floorPlan';
@@ -331,7 +330,6 @@ export function getDatabaseInstance(): DatabaseAPI | null {
   return database;
 }
 
-// Helper functions for user operations using REAL RxDB
 export async function findUserByUsername(username: string) {
   const db = await getDatabase();
   return db.users.findOne({
@@ -365,7 +363,6 @@ export async function updateUserLastLogin(userId: string) {
   return null;
 }
 
-// Helper functions for task operations using REAL RxDB
 export async function createTask(taskData: {
   title: string;
   description?: string;
@@ -457,7 +454,6 @@ export async function deleteTask(taskId: string) {
   return null;
 }
 
-// Helper functions for checklist operations using REAL RxDB
 export async function createChecklistItem(itemData: {
   taskId: string;
   title: string;
@@ -550,7 +546,6 @@ export async function deleteChecklistItem(itemId: string) {
   return null;
 }
 
-// Helper functions for floor plan operations using REAL RxDB
 export async function createFloorPlan(floorPlanData: {
   userId: string;
   name: string;

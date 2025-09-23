@@ -38,12 +38,10 @@ export const Dashboard: React.FC = () => {
     const notStarted = byStatus['not-started'] || 0;
     const completionPct = total ? Math.round((completed / total) * 100) : 0;
 
-    // Checklist analytics (only based on items loaded in store)
     const totalChecklistItems = checklistItems.length;
     const completedChecklistItems = checklistItems.filter(i => i.completed).length;
     const checklistCompletionPct = totalChecklistItems ? Math.round((completedChecklistItems / totalChecklistItems) * 100) : 0;
 
-    // Average checklist completion per task (only tasks that have items loaded)
     const checklistByTask: Record<string, { total: number; done: number; }> = {};
     checklistItems.forEach(item => {
       if (!checklistByTask[item.taskId]) {

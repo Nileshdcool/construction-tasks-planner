@@ -11,7 +11,6 @@ import {
   updateTaskFields
 } from '../db/database';
 
-// Types from task schema
 export type TaskStatus = 'not-started' | 'in-progress' | 'blocked' | 'final-check' | 'done';
 export type ChecklistItemStatus = 'not-started' | 'blocked' | 'final-installation' | 'done' | string;
 
@@ -36,17 +35,15 @@ export interface Task {
   userId: string;
   createdAt: string;
   updatedAt: string;
-  checklist?: ChecklistItem[]; // Populated when needed
+  checklist?: ChecklistItem[];
 }
 
 interface TaskState {
-  // State
   tasks: Task[];
   checklistItems: ChecklistItem[];
   isLoading: boolean;
   error: string | null;
   
-  // Actions
   loadUserTasks: (userId: string, planId?: string) => Promise<void>;
   createNewTask: (taskData: {
     title: string;
@@ -65,27 +62,23 @@ interface TaskState {
   }) => Promise<void>;
   removeTask: (taskId: string) => Promise<void>;
   
-  // Checklist actions
   addChecklistItem: (taskId: string, title: string, status?: ChecklistItemStatus) => Promise<ChecklistItem | null>;
   updateChecklistItemStatus: (itemId: string, status: ChecklistItemStatus) => Promise<void>;
   toggleChecklistItem: (itemId: string, completed: boolean) => Promise<void>;
   removeChecklistItem: (itemId: string) => Promise<void>;
   loadTaskChecklist: (taskId: string) => Promise<ChecklistItem[]>;
   
-  // Utility actions
   clearError: () => void;
   resetTasks: () => void;
 }
 
 export const useTaskStore = create<TaskState>()(
     (set) => ({
-      // Initial state
       tasks: [],
       checklistItems: [],
       isLoading: false,
       error: null,
 
-      // Load all tasks for a user
       loadUserTasks: async (userId: string, planId?: string) => {
         console.log('loadUserTasks called for userId:', userId);
         set({ isLoading: true, error: null });
@@ -108,7 +101,6 @@ export const useTaskStore = create<TaskState>()(
         }
       },
 
-      // Create a new task
       createNewTask: async (taskData) => {
         set({ isLoading: true, error: null });
         
@@ -132,12 +124,10 @@ export const useTaskStore = create<TaskState>()(
         }
       },
 
-      // Update a task
       updateTask: async (taskId, updates) => {
         set({ isLoading: true, error: null });
         try {
           await updateTaskFields(taskId, updates);
-          // Update local state optimistically
           set(state => ({
             tasks: state.tasks.map(t => t.id === taskId ? { ...t, ...updates, updatedAt: new Date().toISOString() } : t),
             isLoading: false
@@ -151,7 +141,6 @@ export const useTaskStore = create<TaskState>()(
         }
       },
 
-      // Remove a task
       removeTask: async (taskId) => {
         set({ isLoading: true, error: null });
         
@@ -172,7 +161,6 @@ export const useTaskStore = create<TaskState>()(
         }
       },
 
-      // Add checklist item
       addChecklistItem: async (taskId, title, status = 'not-started') => {
         set({ error: null });
         
@@ -194,7 +182,6 @@ export const useTaskStore = create<TaskState>()(
         }
       },
 
-      // Update checklist item status
       updateChecklistItemStatus: async (itemId, status) => {
         set({ error: null });
         
@@ -204,7 +191,6 @@ export const useTaskStore = create<TaskState>()(
           set(state => ({
             checklistItems: state.checklistItems.map(item => {
               if (item.id === itemId) {
-                // Sync completion with status
                 const completed = status === 'done';
                 return { ...item, status, completed };
               }
@@ -219,7 +205,6 @@ export const useTaskStore = create<TaskState>()(
         }
       },
 
-      // Toggle checklist item completion
       toggleChecklistItem: async (itemId, completed) => {
         set({ error: null });
         
@@ -229,7 +214,6 @@ export const useTaskStore = create<TaskState>()(
           set(state => ({
             checklistItems: state.checklistItems.map(item => {
               if (item.id === itemId) {
-                // Sync status with completion
                 const newStatus = completed ? 'done' : 
                   (item.status === 'done' ? 'not-started' : item.status);
                 return { ...item, completed, status: newStatus };
@@ -245,7 +229,6 @@ export const useTaskStore = create<TaskState>()(
         }
       },
 
-      // Remove checklist item
       removeChecklistItem: async (itemId) => {
         set({ error: null });
         
@@ -263,13 +246,11 @@ export const useTaskStore = create<TaskState>()(
         }
       },
 
-      // Load checklist for a specific task
       loadTaskChecklist: async (taskId) => {
         try {
           const itemDocs = await getChecklistItemsByTaskId(taskId);
           const items = itemDocs.map(doc => doc.toJSON());
           
-          // Update state with these items
           set(state => ({
             checklistItems: [
               ...state.checklistItems.filter(item => item.taskId !== taskId),
@@ -287,7 +268,6 @@ export const useTaskStore = create<TaskState>()(
         }
       },
 
-      // Utility actions
       clearError: () => set({ error: null }),
       
       resetTasks: () => set({ 
@@ -298,7 +278,6 @@ export const useTaskStore = create<TaskState>()(
       }),
     }));
 
-// Selectors for easier access
 export const useTasksLoading = () => useTaskStore((state) => state.isLoading);
 export const useTasksError = () => useTaskStore((state) => state.error);
 export const useUserTasks = () => useTaskStore((state) => state.tasks);

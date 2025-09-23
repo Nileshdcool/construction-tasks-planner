@@ -19,7 +19,6 @@ const StatusBadge: React.FC<{ status: TaskStatus }> = React.memo(({ status }) =>
   return <span className={`${base} ${cfg.cls}`}>{cfg.label}</span>;
 });
 
-// ✅ Optimized TaskCard with React.memo
 const TaskCard: React.FC<{ 
   task: Task; 
   checklistItems: ChecklistItem[];
@@ -89,11 +88,9 @@ export const TaskBoardView: React.FC = () => {
   const [preselectedStatus, setPreselectedStatus] = useState<TaskStatus>('not-started');
   const [isLoading, setIsLoading] = useState(false);
 
-  // Checklist modal state
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
 
-  // ✅ Optimized checklist data with better dependency tracking
   const checklistData = useMemo(() => {
     const data: Record<string, ChecklistItem[]> = {};
     const allChecklistItems = taskStore.checklistItems;
@@ -105,7 +102,6 @@ export const TaskBoardView: React.FC = () => {
     return data;
   }, [tasks, taskStore.checklistItems]);
 
-  // ✅ Memoized task categorization
   const tasksByStatus = useMemo(() => ({
     'not-started': tasks.filter(task => task.status === 'not-started'),
     'in-progress': tasks.filter(task => task.status === 'in-progress'),
@@ -114,13 +110,11 @@ export const TaskBoardView: React.FC = () => {
     'done': tasks.filter(task => task.status === 'done'),
   }), [tasks]);
 
-  // ✅ Optimized data loading with proper loading states
   useEffect(() => {
     const loadData = async () => {
       if (!currentUser) return;
       setIsLoading(true);
       try {
-        // Load floor plans first
         if (floorPlanStore && floorPlanStore.useFloorPlanStore) {
           await floorPlanStore.useFloorPlanStore.getState().loadUserFloorPlans(currentUser.id);
         }
@@ -134,7 +128,6 @@ export const TaskBoardView: React.FC = () => {
     loadData();
   }, [currentUser]);
 
-  // ✅ Optimized callback handlers
   const handleTaskClick = useCallback((task: Task) => {
     setSelectedTask(task);
     setDetailsOpen(true);
@@ -186,7 +179,7 @@ export const TaskBoardView: React.FC = () => {
   }, []);
 
   if (!currentUser) {
-    return null; // Protected route should handle this
+    return null;
   }
 
   if (isLoading) {
@@ -205,7 +198,6 @@ export const TaskBoardView: React.FC = () => {
     );
   }
 
-  // ✅ BoardView component
   const BoardView = () => (
     <div className="relative -mx-2 flex overflow-x-auto pb-4 gap-4 px-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
       {Object.entries(tasksByStatus).map(([status, statusTasks]) => (
@@ -245,7 +237,6 @@ export const TaskBoardView: React.FC = () => {
     </div>
   );
 
-  // ✅ ListView component
   const ListView = () => (
     <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
       <div className="px-5 py-3 border-b border-gray-200 flex items-center justify-between">
@@ -319,10 +310,8 @@ export const TaskBoardView: React.FC = () => {
         initialStatus={preselectedStatus}
         onCreateTask={handleCreateTask}
       />
-      {/* Main Content */}
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
-          {/* Action Bar */}
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center space-x-4">
               <button
@@ -332,7 +321,6 @@ export const TaskBoardView: React.FC = () => {
             </div>
             
             <div className="flex items-center space-x-4">
-              {/* View Toggle */}
               <div className="flex items-center space-x-1 bg-gray-100 rounded-lg p-1">
                 <button
                   onClick={() => handleViewModeChange('board')}

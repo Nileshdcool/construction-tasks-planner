@@ -20,7 +20,6 @@
     "noEmit": true,
     "jsx": "react-jsx",
     
-    // Additional strict options
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
     "noImplicitReturns": true,

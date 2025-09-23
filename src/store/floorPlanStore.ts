@@ -26,13 +26,11 @@ export interface FloorPlan {
 }
 
 interface FloorPlanState {
-  // State
   floorPlans: FloorPlan[];
   activeFloorPlan: FloorPlan | null;
   isLoading: boolean;
   error: string | null;
   
-  // Actions
   loadUserFloorPlans: (userId: string) => Promise<void>;
   loadActiveFloorPlan: (userId: string) => Promise<void>;
   uploadFloorPlan: (userId: string, name: string, imageFile: File, description?: string, tags?: string[]) => Promise<FloorPlan | null>;
@@ -42,7 +40,6 @@ interface FloorPlanState {
   replaceImage: (floorPlanId: string, imageFile: File) => Promise<void>;
   updateMetadata: (floorPlanId: string, updates: { name?: string; description?: string; tags?: string[] }) => Promise<void>;
   
-  // Utility actions
   clearError: () => void;
   resetFloorPlans: () => void;
 }
@@ -50,13 +47,11 @@ interface FloorPlanState {
 export const useFloorPlanStore = create<FloorPlanState>()(
   persist(
     (set) => ({
-      // Initial state
       floorPlans: [],
       activeFloorPlan: null,
       isLoading: false,
       error: null,
 
-      // Load all floor plans for a user
       loadUserFloorPlans: async (userId: string) => {
         set({ isLoading: true, error: null });
         
@@ -77,7 +72,6 @@ export const useFloorPlanStore = create<FloorPlanState>()(
         }
       },
 
-      // Load active floor plan for a user
       loadActiveFloorPlan: async (userId: string) => {
         set({ error: null });
         
@@ -94,19 +88,17 @@ export const useFloorPlanStore = create<FloorPlanState>()(
         }
       },
 
-      // Upload a new floor plan
       uploadFloorPlan: async (userId: string, name: string, imageFile: File, description?: string, tags?: string[]) => {
         set({ isLoading: true, error: null });
         
         try {
-          // Convert image to base64 for storage (in a real app, you might upload to cloud storage)
           const base64Image = await convertFileToBase64(imageFile);
           
           const newFloorPlanDoc = await createFloorPlan({
             userId,
             name,
             ...(description ? { description } : {}),
-            imageUrl: base64Image, // Store as base64
+            imageUrl: base64Image,
             imageFileName: imageFile.name,
             ...(tags ? { tags } : {})
           });
@@ -115,7 +107,7 @@ export const useFloorPlanStore = create<FloorPlanState>()(
           
           set(state => ({ 
             floorPlans: [...state.floorPlans, newFloorPlan],
-            activeFloorPlan: newFloorPlan, // New floor plan becomes active
+            activeFloorPlan: newFloorPlan,
             isLoading: false 
           }));
           
@@ -127,7 +119,6 @@ export const useFloorPlanStore = create<FloorPlanState>()(
           if (error instanceof Error) {
             errorMessage = error.message;
             
-            // Check for schema validation errors
             if (error.message.includes('VD2') || error.message.includes('schema')) {
               errorMessage = 'Schema validation failed. Try using window.rxdbUtils.clearIndexedDB() to reset the database and reload the page.';
             }
@@ -141,14 +132,12 @@ export const useFloorPlanStore = create<FloorPlanState>()(
         }
       },
 
-      // Set active floor plan
       setActiveFloorPlanById: async (floorPlanId: string, userId: string) => {
         set({ isLoading: true, error: null });
         
         try {
           await setActiveFloorPlan(floorPlanId, userId);
           
-          // Update local state
           set(state => ({
             floorPlans: state.floorPlans.map(fp => ({
               ...fp,
@@ -166,18 +155,15 @@ export const useFloorPlanStore = create<FloorPlanState>()(
         }
       },
 
-      // Remove a floor plan
       removeFloorPlan: async (floorPlanId: string) => {
         set({ isLoading: true, error: null });
         try {
           await deleteFloorPlan(floorPlanId);
 
-          // Also clear tasks for this plan from the task store if available
           try {
             const { useTaskStore } = await import('./taskStore');
-            useTaskStore.getState().resetTasks(); // This clears all tasks; optionally, filter by planId if needed
+            useTaskStore.getState().resetTasks();
           } catch (e) {
-            // Ignore if taskStore not available
           }
 
           set(state => {
@@ -198,7 +184,6 @@ export const useFloorPlanStore = create<FloorPlanState>()(
         }
       },
 
-      // Rename a floor plan
       rename: async (floorPlanId: string, name: string) => {
         set({ isLoading: true, error: null });
         try {
@@ -214,7 +199,6 @@ export const useFloorPlanStore = create<FloorPlanState>()(
         }
       },
 
-      // Replace floor plan image
       replaceImage: async (floorPlanId: string, imageFile: File) => {
         set({ isLoading: true, error: null });
         try {
@@ -231,7 +215,6 @@ export const useFloorPlanStore = create<FloorPlanState>()(
         }
       },
 
-      // Update floor plan metadata
       updateMetadata: async (floorPlanId: string, updates: { name?: string; description?: string; tags?: string[] }) => {
         set({ isLoading: true, error: null });
         try {
@@ -247,7 +230,6 @@ export const useFloorPlanStore = create<FloorPlanState>()(
         }
       },
 
-      // Utility actions
       clearError: () => set({ error: null }),
       
       resetFloorPlans: () => set({ 
@@ -259,7 +241,6 @@ export const useFloorPlanStore = create<FloorPlanState>()(
     }),
     {
       name: 'floor-plan-storage',
-      // Only persist non-sensitive state
       partialize: (state) => ({ 
         activeFloorPlan: state.activeFloorPlan
       }),
@@ -267,7 +248,6 @@ export const useFloorPlanStore = create<FloorPlanState>()(
   )
 );
 
-// Helper function to convert File to base64
 const convertFileToBase64 = (file: File): Promise<string> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -277,7 +257,6 @@ const convertFileToBase64 = (file: File): Promise<string> => {
   });
 };
 
-// Selectors for easier access
 export const useFloorPlansLoading = () => useFloorPlanStore((state) => state.isLoading);
 export const useFloorPlansError = () => useFloorPlanStore((state) => state.error);
 export const useActiveFloorPlan = () => useFloorPlanStore((state) => state.activeFloorPlan);

@@ -1,5 +1,3 @@
-// Global type declarations for development utilities
-
 declare global {
   interface Window {
     rxdbUtils?: {
@@ -10,4 +8,4 @@ declare global {
   }
 }
 
-export {}; // Make this a module
+export {};

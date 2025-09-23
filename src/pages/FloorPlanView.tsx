@@ -28,7 +28,6 @@ export const FloorPlanView: React.FC = () => {
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [showDetails, setShowDetails] = useState(false);
 
-  // Load active plan then tasks for that plan
   useEffect(() => {
     if (currentUser) {
       loadActiveFloorPlan(currentUser.id);
@@ -44,7 +43,7 @@ export const FloorPlanView: React.FC = () => {
 
   const handleImageUpload = async (_imageUrl: string, imageFile: File) => {
     if (currentUser && imageFile.name) {
-      const fileName = imageFile.name.replace(/\.[^/.]+$/, ''); // Remove extension
+      const fileName = imageFile.name.replace(/\.[^/.]+$/, '');
       await uploadFloorPlan(currentUser.id, fileName, imageFile);
     }
   };
@@ -82,9 +81,7 @@ export const FloorPlanView: React.FC = () => {
       if (taskData.description) {
         taskCreateData.description = taskData.description;
       }
-      // Create the task first
       const newTask = await createNewTask(taskCreateData);
-      // If checklist items exist, create them for the new task
       if (newTask && taskData.checklist && taskData.checklist.length > 0) {
         for (const item of taskData.checklist) {
           await useTaskStore.getState().addChecklistItem(newTask.id, item);
@@ -95,7 +92,6 @@ export const FloorPlanView: React.FC = () => {
 
   const handleTaskSelect = async (task: any) => {
     setSelectedTaskId(task.id);
-    // Ensure checklist items are loaded for this task
     await useTaskStore.getState().loadTaskChecklist(task.id);
     setShowDetails(true);
   };
@@ -115,7 +111,7 @@ export const FloorPlanView: React.FC = () => {
   };
 
   if (!currentUser) {
-    return null; // Protected route should handle this
+    return null;
   }
 
   const taskCounts = {
@@ -128,10 +124,8 @@ export const FloorPlanView: React.FC = () => {
     <div className="min-h-screen bg-gray-50">
       <Navigation />
 
-      {/* Main Content */}
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
-          {/* Page Header */}
           <div className="mb-6">
             <h1 className="text-2xl font-bold text-gray-900 mb-2">Floor Plan View</h1>
             <p className="text-gray-600">
@@ -140,16 +134,13 @@ export const FloorPlanView: React.FC = () => {
           </div>
 
           {!activeFloorPlan ? (
-            /* Floor Plan Upload */
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
               <FloorPlanUpload 
                 onImageUpload={handleImageUpload}
               />
             </div>
           ) : (
-            /* Interactive Floor Plan */
             <div className="space-y-6">
-              {/* Controls */}
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
                 <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                   <div className="flex-1">
@@ -209,7 +200,6 @@ export const FloorPlanView: React.FC = () => {
                 </div>
               </div>
 
-              {/* Interactive Floor Plan */}
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                 <InteractiveFloorPlan
                   imageUrl={activeFloorPlan.imageUrl}
@@ -222,7 +212,6 @@ export const FloorPlanView: React.FC = () => {
             </div>
           )}
 
-          {/* Task Summary Panel */}
           <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
               <h3 className="text-sm font-medium text-gray-900 mb-2">Total Tasks</h3>
@@ -245,7 +234,6 @@ export const FloorPlanView: React.FC = () => {
         </div>
       </main>
 
-      {/* Task Creation Modal */}
       <TaskCreationModal
         isOpen={showTaskModal}
         position={taskCreationPosition}

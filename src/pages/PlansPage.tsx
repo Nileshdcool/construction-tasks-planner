@@ -319,7 +319,6 @@ export const PlansPage: React.FC = () => {
         </div>
       </main>
       
-      {/* Edit Modal */}
       {editingPlan && (
         <FloorPlanEditModal
           isOpen={!!editingPlan}
