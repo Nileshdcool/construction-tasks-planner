@@ -124,6 +124,24 @@ export const FloorPlanView: React.FC = () => {
     useTaskStore.getState().removeChecklistItem(itemId);
   };
 
+  const handleDeleteTask = async (taskId: string) => {
+    if (!window.confirm('Are you sure you want to delete this task? This action cannot be undone.')) {
+      return;
+    }
+    
+    try {
+      await useTaskStore.getState().removeTask(taskId);
+      // Close the modal if the deleted task was being viewed
+      if (selectedTaskId === taskId) {
+        setShowDetails(false);
+        setSelectedTaskId(null);
+      }
+    } catch (error) {
+      console.error('Error deleting task:', error);
+      // You could add a toast notification here
+    }
+  };
+
   if (!currentUser) {
     return null;
   }
@@ -267,6 +285,7 @@ export const FloorPlanView: React.FC = () => {
         onUpdateChecklistItemStatus={handleUpdateChecklistItemStatus}
         onEditChecklistItem={handleEditChecklistItem}
         onDeleteChecklistItem={handleDeleteChecklistItem}
+        onDeleteTask={handleDeleteTask}
       />
     </div>
   );

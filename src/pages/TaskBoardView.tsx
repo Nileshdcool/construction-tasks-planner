@@ -19,11 +19,12 @@ const StatusBadge: React.FC<{ status: TaskStatus }> = React.memo(({ status }) =>
   return <span className={`${base} ${cfg.cls}`}>{cfg.label}</span>;
 });
 
-const TaskCard: React.FC<{ 
-  task: Task; 
+const TaskCard: React.FC<{
+  task: Task;
   checklistItems: ChecklistItem[];
   onTaskClick?: (task: Task) => void;
-}> = React.memo(({ task, checklistItems, onTaskClick }) => {
+  onDeleteTask?: (taskId: string) => void;
+}> = React.memo(({ task, checklistItems, onTaskClick, onDeleteTask }) => {
   const completedCount = useMemo(() => 
     checklistItems.filter(item => item.completed).length, 
     [checklistItems]
@@ -50,7 +51,23 @@ const TaskCard: React.FC<{
         <div className="flex-1 min-w-0">
           <h4 className="text-sm font-semibold text-gray-800 leading-snug line-clamp-2 group-hover:text-gray-900">{task.title}</h4>
         </div>
-        <StatusBadge status={task.status} />
+        <div className="flex items-center gap-2">
+          <StatusBadge status={task.status} />
+          {onDeleteTask && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onDeleteTask(task.id);
+              }}
+              className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-gray-400 hover:text-red-500 rounded"
+              title="Delete task"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
+          )}
+        </div>
       </div>
       {task.description && (
         <div className="px-3 pb-2 -mt-1">
@@ -176,6 +193,23 @@ export const TaskBoardView: React.FC = () => {
     taskStore.removeChecklistItem(itemId);
   }, [taskStore]);
 
+  const handleDeleteTask = useCallback(async (taskId: string) => {
+    if (!window.confirm('Are you sure you want to delete this task? This action cannot be undone.')) {
+      return;
+    }
+    
+    try {
+      await taskStore.removeTask(taskId);
+      // Close the modal if the deleted task was being viewed
+      if (selectedTask && selectedTask.id === taskId) {
+        setDetailsOpen(false);
+        setSelectedTask(null);
+      }
+    } catch (error) {
+      console.error('Error deleting task:', error);
+      // You could add a toast notification here
+    }
+  }, [taskStore, selectedTask]);
 
   const handleAddTask = useCallback((status: TaskStatus) => {
     setPreselectedStatus(status);
@@ -252,6 +286,7 @@ export const TaskBoardView: React.FC = () => {
                   task={task}
                   checklistItems={checklistData[task.id] || []}
                   onTaskClick={handleTaskClick}
+                  onDeleteTask={handleDeleteTask}
                 />
               ))
             )}
@@ -335,6 +370,7 @@ export const TaskBoardView: React.FC = () => {
         onUpdateChecklistItemStatus={handleUpdateChecklistItemStatus}
         onEditChecklistItem={handleEditChecklistItem}
         onDeleteChecklistItem={handleDeleteChecklistItem}
+        onDeleteTask={handleDeleteTask}
       />
       <TaskCreationModal
         isOpen={showCreateModal}

@@ -16,6 +16,7 @@ interface TaskDetailsModalProps {
   onUpdateChecklistItemStatus?: (itemId: string, status: ChecklistItemStatus) => void;
   onEditChecklistItem?: (itemId: string, newTitle: string) => void;
   onDeleteChecklistItem?: (itemId: string) => void;
+  onDeleteTask?: (taskId: string) => void;
 }
 
 
@@ -29,6 +30,7 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
   onUpdateChecklistItemStatus,
   onEditChecklistItem,
   onDeleteChecklistItem,
+  onDeleteTask,
 }) => {
   const floorPlans = useUserFloorPlans();
   const [newItem, setNewItem] = React.useState('');
@@ -223,21 +225,40 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
             </div>
           </div>
           {/* Footer */}
-          <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-            <button
-              type="submit"
-              className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50"
-              disabled={!editTitle.trim()}
-            >
-              Save Changes
-            </button>
-            <button
-              type="button"
-              onClick={onClose}
-              className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-            >
-              Close
-            </button>
+          <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row sm:justify-between">
+            {/* Left side - Delete button */}
+            <div className="sm:flex sm:flex-row">
+              {onDeleteTask && task && (
+                <button
+                  type="button"
+                  onClick={() => onDeleteTask(task.id)}
+                  className="w-full inline-flex justify-center rounded-md border border-red-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-red-700 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:w-auto sm:text-sm"
+                >
+                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                  Delete Task
+                </button>
+              )}
+            </div>
+            
+            {/* Right side - Save and Close buttons */}
+            <div className="mt-3 sm:mt-0 sm:flex sm:flex-row-reverse">
+              <button
+                type="submit"
+                className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50"
+                disabled={!editTitle.trim()}
+              >
+                Save Changes
+              </button>
+              <button
+                type="button"
+                onClick={onClose}
+                className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+              >
+                Close
+              </button>
+            </div>
           </div>
         </form>
       </div>
