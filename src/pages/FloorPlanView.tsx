@@ -83,18 +83,18 @@ export const FloorPlanView: React.FC = () => {
       }
       const newTask = await createNewTask(taskCreateData);
       if (newTask) {
-        // Load the default checklist items that were automatically created
+  // ...existing code...
         await useTaskStore.getState().loadTaskChecklist(newTask.id);
         
-        // Add any additional checklist items from the modal that are NOT default items
+  // ...existing code...
         if (taskData.checklist && taskData.checklist.length > 0) {
-          // Import default checklist to filter out duplicates
+          // ...existing code...
           const { getDefaultChecklistItems } = await import('../utils/defaultChecklist');
           const defaultItems = getDefaultChecklistItems();
           const defaultTitles = defaultItems.map(item => item.title);
           
           for (const item of taskData.checklist) {
-            // Only add if it's not a default item
+            // ...existing code...
             if (!defaultTitles.includes(item)) {
               await useTaskStore.getState().addChecklistItem(newTask.id, item);
             }
@@ -139,14 +139,14 @@ export const FloorPlanView: React.FC = () => {
     
     try {
       await useTaskStore.getState().removeTask(taskId);
-      // Close the modal if the deleted task was being viewed
+  // ...existing code...
       if (selectedTaskId === taskId) {
         setShowDetails(false);
         setSelectedTaskId(null);
       }
     } catch (error) {
       console.error('Error deleting task:', error);
-      // You could add a toast notification here
+  // ...existing code...
     }
   };
 

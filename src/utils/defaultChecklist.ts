@@ -6,7 +6,6 @@ export interface DefaultChecklistItem {
   order: number;
 }
 
-// Default checklist items that will be added to every new task
 export const DEFAULT_CHECKLIST_ITEMS: DefaultChecklistItem[] = [
   {
     title: "Review project requirements and specifications",
@@ -25,9 +24,6 @@ export const DEFAULT_CHECKLIST_ITEMS: DefaultChecklistItem[] = [
   },
 ];
 
-/**
- * Returns a copy of the default checklist items for a new task
- */
 export function getDefaultChecklistItems(): DefaultChecklistItem[] {
   return DEFAULT_CHECKLIST_ITEMS.map(item => ({ ...item }));
 }

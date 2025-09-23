@@ -137,15 +137,14 @@ export const TaskBoardView: React.FC = () => {
         }
         await taskStore.loadUserTasks(currentUser.id);
         
-        // Load checklist items for all tasks to show correct progress indicators
-        // Need to wait for tasks to be loaded first, then get them from the store
+  // ...existing code...
         const loadedTasks = useTaskStore.getState().tasks;
         if (loadedTasks.length > 0) {
-          // Load checklist items for all tasks in parallel for better performance
+          // ...existing code...
           const checklistPromises = loadedTasks.map(task => 
             taskStore.loadTaskChecklist(task.id).catch(error => {
               console.warn(`Failed to load checklist for task ${task.id}:`, error);
-              return []; // Return empty array on error to prevent Promise.all from failing
+              return [];
             })
           );
           await Promise.all(checklistPromises);
@@ -162,7 +161,7 @@ export const TaskBoardView: React.FC = () => {
   const handleTaskClick = useCallback(async (task: Task) => {
     setSelectedTask(task);
     setDetailsOpen(true);
-    // Load checklist items for the selected task
+  // ...existing code...
     await taskStore.loadTaskChecklist(task.id);
   }, [taskStore]);
 
@@ -200,14 +199,14 @@ export const TaskBoardView: React.FC = () => {
     
     try {
       await taskStore.removeTask(taskId);
-      // Close the modal if the deleted task was being viewed
+  // ...existing code...
       if (selectedTask && selectedTask.id === taskId) {
         setDetailsOpen(false);
         setSelectedTask(null);
       }
     } catch (error) {
       console.error('Error deleting task:', error);
-      // You could add a toast notification here
+  // ...existing code...
     }
   }, [taskStore, selectedTask]);
 
@@ -226,18 +225,18 @@ export const TaskBoardView: React.FC = () => {
     };
     const newTask = await taskStore.createNewTask(baseTask);
     if (newTask) {
-      // Load the default checklist items that were automatically created
+  // ...existing code...
       await taskStore.loadTaskChecklist(newTask.id);
       
-      // Add any additional checklist items from the modal that are NOT default items
+  // ...existing code...
       if (data.checklist && data.checklist.length) {
-        // Import default checklist to filter out duplicates
+  // ...existing code...
         const { getDefaultChecklistItems } = await import('../utils/defaultChecklist');
         const defaultItems = getDefaultChecklistItems();
         const defaultTitles = defaultItems.map(item => item.title);
         
         for (const item of data.checklist) {
-          // Only add if it's not a default item
+          // ...existing code...
           if (!defaultTitles.includes(item)) {
             await taskStore.addChecklistItem(newTask.id, item);
           }
@@ -426,7 +425,7 @@ export const TaskBoardView: React.FC = () => {
             </div>
           </div>
 
-          {/* Content */}
+          {/* ...existing code... */}
           {viewMode === 'board' ? <BoardView /> : <ListView />}
         </div>
       </main>

@@ -1,7 +1,3 @@
-// Re-export all database functionality from the modular services
-// This maintains backward compatibility with existing imports
-
-// Core database functions
 export {
   getDatabase,
   initializeDatabase,
@@ -11,14 +7,12 @@ export {
   type DatabaseAPI
 } from './core/connection';
 
-// User service functions
 export {
   findUserByUsername,
   createUser,
   updateUserLastLogin
 } from './services/userService';
 
-// Task service functions
 export {
   createTask,
   getTasksByUserId,
@@ -27,7 +21,6 @@ export {
   deleteTask
 } from './services/taskService';
 
-// Checklist service functions
 export {
   createChecklistItem,
   getChecklistItemsByTaskId,
@@ -37,7 +30,6 @@ export {
   deleteChecklistItem
 } from './services/checklistService';
 
-// Floor plan service functions
 export {
   createFloorPlan,
   getActiveFloorPlan,
