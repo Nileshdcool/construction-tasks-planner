@@ -10,6 +10,8 @@ export const Dashboard: React.FC = () => {
   const tasks = useUserTasks();
   const loadUserTasks = useTaskStore(s => s.loadUserTasks);
   const checklistItems = useTaskStore(s => s.checklistItems);
+  // Simple admin determination: treat username 'admin' (case-insensitive) as admin user
+  const isAdmin = !!currentUser && currentUser.username.toLowerCase() === 'admin';
 
   // Ensure tasks are loaded when arriving at dashboard
   useEffect(() => {
@@ -320,8 +322,8 @@ export const Dashboard: React.FC = () => {
             </div>
           </div>
 
-          {/* RxDB Data Viewer - Development Only */}
-          {process.env.NODE_ENV === 'development' && (
+          {/* RxDB Data Viewer & Emergency Tools - Visible only for admin (and still only in development env) */}
+          {process.env.NODE_ENV === 'development' && isAdmin && (
             <div className="mt-8">
               <div className="mb-4 p-4 bg-cp-warning-50 border border-cp-warning-200 rounded-lg">
                 <div className="flex items-center justify-between">
