@@ -22,12 +22,12 @@ interface InteractiveFloorPlanProps {
 
 const getStatusColor = (status: TaskStatus) => {
   switch (status) {
-    case 'not-started': return 'bg-cendas-neutral-500';
-    case 'in-progress': return 'bg-cendas-primary-600';
-    case 'blocked': return 'bg-cendas-danger-500';
-    case 'final-check': return 'bg-cendas-warning-500';
-    case 'done': return 'bg-cendas-success-500';
-    default: return 'bg-cendas-neutral-500';
+    case 'not-started': return 'bg-cp-neutral-500';
+    case 'in-progress': return 'bg-cp-primary-600';
+    case 'blocked': return 'bg-cp-danger-500';
+    case 'final-check': return 'bg-cp-warning-500';
+    case 'done': return 'bg-cp-success-500';
+    default: return 'bg-cp-neutral-500';
   }
 };
 
@@ -134,15 +134,14 @@ export const InteractiveFloorPlan: React.FC<InteractiveFloorPlanProps> = ({
 
   return (
     <div className="relative">
-      {/* Instructions with Cendas branding */}
-      <div className="mb-4 p-4 bg-cendas-primary-50 border border-cendas-primary-200 rounded-lg">
+      <div className="mb-4 p-4 bg-cp-primary-50 border border-cp-primary-200 rounded-lg">
         <div className="flex items-center space-x-2">
-          <div className="text-cendas-primary-600">
+          <div className="text-cp-primary-600">
             <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <div className="text-sm text-cendas-primary-800 font-medium">
+          <div className="text-sm text-cp-primary-800 font-medium">
             {isAddingTask 
               ? "Click anywhere on the floor plan to add a new task at that location"
               : "Click on task markers to view details, or enable 'Add Task' mode to create new tasks"
@@ -151,10 +150,9 @@ export const InteractiveFloorPlan: React.FC<InteractiveFloorPlanProps> = ({
         </div>
       </div>
 
-      {/* Floor Plan Container with Cendas styling */}
       <div 
         ref={containerRef}
-        className="relative bg-white border border-cendas-neutral-200 rounded-lg overflow-hidden shadow-cendas"
+        className="relative bg-white border border-cp-neutral-200 rounded-lg overflow-hidden shadow-cp"
         style={{ 
           cursor: isAddingTask ? 'crosshair' : 'default',
           minHeight: '400px'
@@ -177,7 +175,7 @@ export const InteractiveFloorPlan: React.FC<InteractiveFloorPlanProps> = ({
         {imageLoaded && taskMarkers.map((taskMarker) => (
           <div
             key={taskMarker.id}
-            className={`absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer group ${selectedTask === taskMarker.id ? 'scale-125 ring-2 ring-cendas-primary-400' : ''}`}
+            className={`absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer group ${selectedTask === taskMarker.id ? 'scale-125 ring-2 ring-cp-primary-400' : ''}`}
             style={{
               left: `${taskMarker.position.relativeX}%`,
               top: `${taskMarker.position.relativeY}%`,
@@ -185,8 +183,7 @@ export const InteractiveFloorPlan: React.FC<InteractiveFloorPlanProps> = ({
             }}
             onClick={(e) => handleTaskMarkerClick(e, taskMarker)}
           >
-            {/* Task Marker Pin with Cendas branding */}
-            <div className={`relative ${getStatusColor(taskMarker.status)} rounded-full w-8 h-8 border-2 border-white shadow-cendas transform transition-transform group-hover:scale-110 flex items-center justify-center`}>
+            <div className={`relative ${getStatusColor(taskMarker.status)} rounded-full w-8 h-8 border-2 border-white shadow-cp transform transition-transform group-hover:scale-110 flex items-center justify-center`}>
               <span className="text-white text-xs font-bold leading-none">
                 {getTaskTypeAbbreviation(taskMarker.title)}
               </span>
@@ -208,7 +205,7 @@ export const InteractiveFloorPlan: React.FC<InteractiveFloorPlanProps> = ({
                 ? 'right-0 transform-none' // Align right if near right edge
                 : 'left-1/2 transform -translate-x-1/2' // Center by default
             }`}>
-              <div className="bg-cendas-neutral-800 backdrop-blur-sm text-white text-sm rounded-xl px-4 py-3 shadow-cendas-lg border border-cendas-neutral-600/50 min-w-max max-w-sm">
+              <div className="bg-cp-neutral-800 backdrop-blur-sm text-white text-sm rounded-xl px-4 py-3 shadow-cp-lg border border-cp-neutral-600/50 min-w-max max-w-sm">
                 {/* Header with task type and title */}
                 <div className="flex items-center space-x-3 mb-2">
                   <div className={`flex items-center justify-center w-6 h-6 rounded-full ${getStatusColor(taskMarker.status)} text-white text-xs font-bold shadow-sm`}>
@@ -221,7 +218,7 @@ export const InteractiveFloorPlan: React.FC<InteractiveFloorPlanProps> = ({
                 
                 {/* Description */}
                 {taskMarker.description && (
-                  <div className="text-cendas-neutral-300 mb-2 leading-relaxed">
+                  <div className="text-cp-neutral-300 mb-2 leading-relaxed">
                     {taskMarker.description.length > 80 
                       ? `${taskMarker.description.substring(0, 80)}...` 
                       : taskMarker.description
@@ -232,7 +229,7 @@ export const InteractiveFloorPlan: React.FC<InteractiveFloorPlanProps> = ({
                 {/* Status info */}
                 <div className="flex items-center space-x-2 text-xs">
                   <div className={`w-2 h-2 rounded-full ${getStatusColor(taskMarker.status)}`}></div>
-                  <span className="text-cendas-neutral-400 capitalize">
+                  <span className="text-cp-neutral-400 capitalize">
                     {taskMarker.status.replace('-', ' ')}
                   </span>
                 </div>
@@ -244,28 +241,26 @@ export const InteractiveFloorPlan: React.FC<InteractiveFloorPlanProps> = ({
                   'left-1/2 transform -translate-x-1/2'
                 } w-0 h-0 ${
                   taskMarker.position.relativeY < 30
-                    ? 'bottom-full border-l-[6px] border-r-[6px] border-b-[6px] border-transparent border-b-cendas-neutral-800'
-                    : 'top-full border-l-[6px] border-r-[6px] border-t-[6px] border-transparent border-t-cendas-neutral-800'
+                    ? 'bottom-full border-l-[6px] border-r-[6px] border-b-[6px] border-transparent border-b-cp-neutral-800'
+                    : 'top-full border-l-[6px] border-r-[6px] border-t-[6px] border-transparent border-t-cp-neutral-800'
                 }`}></div>
               </div>
             </div>
           </div>
         ))}
 
-        {/* Loading Overlay with Cendas branding */}
         {!imageLoaded && (
-          <div className="absolute inset-0 flex items-center justify-center bg-cendas-neutral-50">
+          <div className="absolute inset-0 flex items-center justify-center bg-cp-neutral-50">
             <div className="flex flex-col items-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cendas-primary-500 mb-2"></div>
-              <div className="text-sm text-cendas-neutral-600 font-medium">Loading floor plan...</div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cp-primary-500 mb-2"></div>
+              <div className="text-sm text-cp-neutral-600 font-medium">Loading floor plan...</div>
             </div>
           </div>
         )}
       </div>
 
-      {/* Legend with Cendas branding */}
-      <div className="mt-4 p-4 bg-cendas-neutral-50 border border-cendas-neutral-200 rounded-lg">
-        <h4 className="text-sm font-semibold text-cendas-neutral-900 mb-3">Task Status Legend</h4>
+      <div className="mt-4 p-4 bg-cp-neutral-50 border border-cp-neutral-200 rounded-lg">
+        <h4 className="text-sm font-semibold text-cp-neutral-900 mb-3">Task Status Legend</h4>
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
           {[
             { status: 'not-started', label: 'Not Started' },
@@ -276,14 +271,13 @@ export const InteractiveFloorPlan: React.FC<InteractiveFloorPlanProps> = ({
           ].map(({ status, label }) => (
             <div key={status} className="flex items-center space-x-2">
               <div className={`w-3 h-3 rounded-full ${getStatusColor(status as TaskStatus)}`}></div>
-              <span className="text-xs text-cendas-neutral-700 font-medium">{label}</span>
+              <span className="text-xs text-cp-neutral-700 font-medium">{label}</span>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Task Count with Cendas styling */}
-      <div className="mt-3 text-sm text-cendas-neutral-600 text-center font-medium">
+      <div className="mt-3 text-sm text-cp-neutral-600 text-center font-medium">
         {taskMarkers.length} task{taskMarkers.length !== 1 ? 's' : ''} positioned on floor plan
       </div>
     </div>

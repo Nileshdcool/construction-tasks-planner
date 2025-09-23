@@ -95,48 +95,48 @@ export const PlansPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-cendas-neutral-50">
+    <div className="min-h-screen bg-cp-neutral-50">
       <Navigation />
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-2xl font-bold text-cendas-neutral-900 mb-1">Floor Plans</h1>
-              <p className="text-cendas-neutral-600 text-sm">Manage multiple project floor plans. Activate one to place and view tasks.</p>
+              <h1 className="text-2xl font-bold text-cp-neutral-900 mb-1">Floor Plans</h1>
+              <p className="text-cp-neutral-600 text-sm">Manage multiple project floor plans. Activate one to place and view tasks.</p>
             </div>
             <button
               onClick={() => setShowAdd(s => !s)}
-              className="px-4 py-2 rounded-md text-sm font-medium bg-cendas-primary-600 hover:bg-cendas-primary-700 text-white transition"
+              className="px-4 py-2 rounded-md text-sm font-medium bg-cp-primary-600 hover:bg-cp-primary-700 text-white transition"
             >
               {showAdd ? 'Cancel' : 'New Plan'}
             </button>
           </div>
 
           {showAdd && (
-            <form onSubmit={handleCreate} className="mb-8 bg-white border border-cendas-neutral-200 rounded-lg p-5 shadow-sm">
+            <form onSubmit={handleCreate} className="mb-8 bg-white border border-cp-neutral-200 rounded-lg p-5 shadow-sm">
               <div className="grid md:grid-cols-2 gap-4 mb-4">
                 <div>
-                  <label className="block text-xs font-semibold text-cendas-neutral-600 mb-1">Plan Image</label>
+                  <label className="block text-xs font-semibold text-cp-neutral-600 mb-1">Plan Image</label>
                   <input type="file" accept="image/*" onChange={handleFileSelect} className="block w-full text-sm" />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-cendas-neutral-600 mb-1">Name</label>
+                  <label className="block text-xs font-semibold text-cp-neutral-600 mb-1">Name</label>
                   <input
                     type="text"
                     value={newPlan.name}
                     onChange={(e) => setNewPlan(p => ({ ...p, name: e.target.value }))}
-                    className="w-full rounded-md border border-cendas-neutral-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cendas-primary-400"
+                    className="w-full rounded-md border border-cp-neutral-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cp-primary-400"
                     placeholder="Ground Floor"
                   />
                 </div>
               </div>
               <div className="mb-4">
-                <label className="block text-xs font-semibold text-cendas-neutral-600 mb-1">Description</label>
+                <label className="block text-xs font-semibold text-cp-neutral-600 mb-1">Description</label>
                 <textarea
                   value={newPlan.description}
                   onChange={(e) => setNewPlan(p => ({ ...p, description: e.target.value }))}
                   rows={2}
-                  className="w-full rounded-md border border-cendas-neutral-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cendas-primary-400 resize-none"
+                  className="w-full rounded-md border border-cp-neutral-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cp-primary-400 resize-none"
                   placeholder="Optional description for this floor plan..."
                 />
               </div>
@@ -144,19 +144,19 @@ export const PlansPage: React.FC = () => {
                 <button
                   type="submit"
                   disabled={!newPlan.file || !newPlan.name.trim() || isSubmitting}
-                  className="px-4 py-2 rounded-md bg-cendas-primary-600 text-white text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-cendas-primary-700 transition"
+                  className="px-4 py-2 rounded-md bg-cp-primary-600 text-white text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-cp-primary-700 transition"
                 >
                   {isSubmitting ? 'Creating...' : 'Create Plan'}
                 </button>
                 {newPlan.file && (
-                  <span className="text-[11px] text-cendas-neutral-500 truncate max-w-[140px]">{newPlan.file.name}</span>
+                  <span className="text-[11px] text-cp-neutral-500 truncate max-w-[140px]">{newPlan.file.name}</span>
                 )}
               </div>
             </form>
           )}
 
           {floorPlans.length === 0 ? (
-            <div className="bg-white border border-cendas-neutral-200 rounded-lg p-8 text-center text-sm text-cendas-neutral-600">
+            <div className="bg-white border border-cp-neutral-200 rounded-lg p-8 text-center text-sm text-cp-neutral-600">
               No floor plans yet. Create your first one.
             </div>
           ) : floorPlans.length === 1 ? (
@@ -165,12 +165,12 @@ export const PlansPage: React.FC = () => {
               if (!plan) return null;
               const isActive = activePlan?.id === plan.id;
               return (
-                <div className={`relative group bg-white border rounded-lg shadow-sm overflow-hidden flex flex-col max-w-xl mx-auto ${isActive ? 'border-cendas-primary-400 ring-1 ring-cendas-primary-300' : 'border-cendas-neutral-200'}`}>
-                  <div className="aspect-video w-full bg-cendas-neutral-100 flex items-center justify-center overflow-hidden">
+                <div className={`relative group bg-white border rounded-lg shadow-sm overflow-hidden flex flex-col max-w-xl mx-auto ${isActive ? 'border-cp-primary-400 ring-1 ring-cp-primary-300' : 'border-cp-neutral-200'}`}>
+                  <div className="aspect-video w-full bg-cp-neutral-100 flex items-center justify-center overflow-hidden">
                     {plan.imageUrl ? (
                       <img src={plan.imageUrl} alt={plan.name} className="object-contain max-h-full" />
                     ) : (
-                      <span className="text-xs text-cendas-neutral-400">No image</span>
+                      <span className="text-xs text-cp-neutral-400">No image</span>
                     )}
                   </div>
                   <div className="p-4 flex-1 flex flex-col">
@@ -180,24 +180,24 @@ export const PlansPage: React.FC = () => {
                           value={renameStates[plan.id] ?? plan.name}
                           onChange={(e) => setRenameStates(s => ({ ...s, [plan.id]: e.target.value }))}
                           onBlur={() => handleRename(plan.id)}
-                          className="w-full bg-transparent border border-transparent focus:border-cendas-primary-300 rounded px-1 py-0.5 text-sm font-medium text-cendas-neutral-900 focus:outline-none"
+                          className="w-full bg-transparent border border-transparent focus:border-cp-primary-300 rounded px-1 py-0.5 text-sm font-medium text-cp-neutral-900 focus:outline-none"
                         />
                         <div className="flex items-center space-x-2 mt-1">
-                          {isActive && <span className="inline-flex items-center px-2 py-0.5 rounded bg-cendas-primary-100 text-cendas-primary-700 text-[10px] font-semibold">ACTIVE</span>}
-                          <span className="text-[10px] text-cendas-neutral-500">{new Date(plan.uploadedAt).toLocaleDateString()}</span>
+                          {isActive && <span className="inline-flex items-center px-2 py-0.5 rounded bg-cp-primary-100 text-cp-primary-700 text-[10px] font-semibold">ACTIVE</span>}
+                          <span className="text-[10px] text-cp-neutral-500">{new Date(plan.uploadedAt).toLocaleDateString()}</span>
                         </div>
                         {plan.description && (
-                          <p className="text-[11px] text-cendas-neutral-600 mt-1 truncate" title={plan.description}>{plan.description}</p>
+                          <p className="text-[11px] text-cp-neutral-600 mt-1 truncate" title={plan.description}>{plan.description}</p>
                         )}
                         {plan.tags && plan.tags.length > 0 && (
                           <div className="flex flex-wrap gap-1 mt-2">
                             {plan.tags.slice(0, 3).map((tag) => (
-                              <span key={tag} className="px-1.5 py-0.5 rounded text-[9px] bg-cendas-neutral-100 text-cendas-neutral-600">
+                              <span key={tag} className="px-1.5 py-0.5 rounded text-[9px] bg-cp-neutral-100 text-cp-neutral-600">
                                 {tag}
                               </span>
                             ))}
                             {plan.tags.length > 3 && (
-                              <span className="text-[9px] text-cendas-neutral-500">+{plan.tags.length - 3}</span>
+                              <span className="text-[9px] text-cp-neutral-500">+{plan.tags.length - 3}</span>
                             )}
                           </div>
                         )}
@@ -205,33 +205,33 @@ export const PlansPage: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => handleActivate(plan.id)}
-                        className={`text-[10px] font-medium px-2 py-1 rounded border transition ${isActive ? 'border-cendas-primary-400 text-cendas-primary-600 bg-cendas-primary-50' : 'border-cendas-neutral-300 text-cendas-neutral-600 hover:bg-cendas-neutral-100'}`}
+                        className={`text-[10px] font-medium px-2 py-1 rounded border transition ${isActive ? 'border-cp-primary-400 text-cp-primary-600 bg-cp-primary-50' : 'border-cp-neutral-300 text-cp-neutral-600 hover:bg-cp-neutral-100'}`}
                       >
                         {isActive ? 'Active' : 'Activate'}
                       </button>
                     </div>
-                    <div className="mt-auto flex items-center justify-between pt-3 border-t border-cendas-neutral-100">
+                    <div className="mt-auto flex items-center justify-between pt-3 border-t border-cp-neutral-100">
                       <div className="flex space-x-2">
                         <button
                           onClick={() => handleEdit(plan)}
-                          className="text-[11px] px-2 py-1 rounded bg-cendas-primary-50 hover:bg-cendas-primary-100 text-cendas-primary-700 font-medium"
+                          className="text-[11px] px-2 py-1 rounded bg-cp-primary-50 hover:bg-cp-primary-100 text-cp-primary-700 font-medium"
                         >
                           Edit
                         </button>
                         <button
                           onClick={() => handleReplace(plan.id)}
-                          className="text-[11px] px-2 py-1 rounded bg-cendas-neutral-100 hover:bg-cendas-neutral-200 text-cendas-neutral-700 font-medium"
+                          className="text-[11px] px-2 py-1 rounded bg-cp-neutral-100 hover:bg-cp-neutral-200 text-cp-neutral-700 font-medium"
                         >
                           Replace
                         </button>
                         <button
                           onClick={() => handleDelete(plan.id)}
-                          className="text-[11px] px-2 py-1 rounded bg-cendas-danger-50 hover:bg-cendas-danger-100 text-cendas-danger-600 font-medium"
+                          className="text-[11px] px-2 py-1 rounded bg-cp-danger-50 hover:bg-cp-danger-100 text-cp-danger-600 font-medium"
                         >
                           Delete
                         </button>
                       </div>
-                      <div className="text-[10px] text-cendas-neutral-500 font-mono truncate max-w-[90px]">{plan.id.slice(0,10)}...</div>
+                      <div className="text-[10px] text-cp-neutral-500 font-mono truncate max-w-[90px]">{plan.id.slice(0,10)}...</div>
                     </div>
                   </div>
                 </div>
@@ -242,12 +242,12 @@ export const PlansPage: React.FC = () => {
               {floorPlans.sort((a,b)=> new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime()).map(plan => {
                 const isActive = activePlan?.id === plan.id;
                 return (
-                  <div key={plan.id} className={`relative group bg-white border rounded-lg shadow-sm overflow-hidden flex flex-col ${isActive ? 'border-cendas-primary-400 ring-1 ring-cendas-primary-300' : 'border-cendas-neutral-200'}`}>
-                    <div className="aspect-video w-full bg-cendas-neutral-100 flex items-center justify-center overflow-hidden">
+                  <div key={plan.id} className={`relative group bg-white border rounded-lg shadow-sm overflow-hidden flex flex-col ${isActive ? 'border-cp-primary-400 ring-1 ring-cp-primary-300' : 'border-cp-neutral-200'}`}>
+                    <div className="aspect-video w-full bg-cp-neutral-100 flex items-center justify-center overflow-hidden">
                       {plan.imageUrl ? (
                         <img src={plan.imageUrl} alt={plan.name} className="object-contain max-h-full" />
                       ) : (
-                        <span className="text-xs text-cendas-neutral-400">No image</span>
+                        <span className="text-xs text-cp-neutral-400">No image</span>
                       )}
                     </div>
                     <div className="p-4 flex-1 flex flex-col">
@@ -257,24 +257,24 @@ export const PlansPage: React.FC = () => {
                             value={renameStates[plan.id] ?? plan.name}
                             onChange={(e) => setRenameStates(s => ({ ...s, [plan.id]: e.target.value }))}
                             onBlur={() => handleRename(plan.id)}
-                            className="w-full bg-transparent border border-transparent focus:border-cendas-primary-300 rounded px-1 py-0.5 text-sm font-medium text-cendas-neutral-900 focus:outline-none"
+                            className="w-full bg-transparent border border-transparent focus:border-cp-primary-300 rounded px-1 py-0.5 text-sm font-medium text-cp-neutral-900 focus:outline-none"
                           />
                           <div className="flex items-center space-x-2 mt-1">
-                            {isActive && <span className="inline-flex items-center px-2 py-0.5 rounded bg-cendas-primary-100 text-cendas-primary-700 text-[10px] font-semibold">ACTIVE</span>}
-                            <span className="text-[10px] text-cendas-neutral-500">{new Date(plan.uploadedAt).toLocaleDateString()}</span>
+                            {isActive && <span className="inline-flex items-center px-2 py-0.5 rounded bg-cp-primary-100 text-cp-primary-700 text-[10px] font-semibold">ACTIVE</span>}
+                            <span className="text-[10px] text-cp-neutral-500">{new Date(plan.uploadedAt).toLocaleDateString()}</span>
                           </div>
                           {plan.description && (
-                            <p className="text-[11px] text-cendas-neutral-600 mt-1 truncate" title={plan.description}>{plan.description}</p>
+                            <p className="text-[11px] text-cp-neutral-600 mt-1 truncate" title={plan.description}>{plan.description}</p>
                           )}
                           {plan.tags && plan.tags.length > 0 && (
                             <div className="flex flex-wrap gap-1 mt-2">
                               {plan.tags.slice(0, 3).map((tag) => (
-                                <span key={tag} className="px-1.5 py-0.5 rounded text-[9px] bg-cendas-neutral-100 text-cendas-neutral-600">
+                                <span key={tag} className="px-1.5 py-0.5 rounded text-[9px] bg-cp-neutral-100 text-cp-neutral-600">
                                   {tag}
                                 </span>
                               ))}
                               {plan.tags.length > 3 && (
-                                <span className="text-[9px] text-cendas-neutral-500">+{plan.tags.length - 3}</span>
+                                <span className="text-[9px] text-cp-neutral-500">+{plan.tags.length - 3}</span>
                               )}
                             </div>
                           )}
@@ -282,33 +282,33 @@ export const PlansPage: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => handleActivate(plan.id)}
-                          className={`text-[10px] font-medium px-2 py-1 rounded border transition ${isActive ? 'border-cendas-primary-400 text-cendas-primary-600 bg-cendas-primary-50' : 'border-cendas-neutral-300 text-cendas-neutral-600 hover:bg-cendas-neutral-100'}`}
+                          className={`text-[10px] font-medium px-2 py-1 rounded border transition ${isActive ? 'border-cp-primary-400 text-cp-primary-600 bg-cp-primary-50' : 'border-cp-neutral-300 text-cp-neutral-600 hover:bg-cp-neutral-100'}`}
                         >
                           {isActive ? 'Active' : 'Activate'}
                         </button>
                       </div>
-                      <div className="mt-auto flex items-center justify-between pt-3 border-t border-cendas-neutral-100">
+                      <div className="mt-auto flex items-center justify-between pt-3 border-t border-cp-neutral-100">
                         <div className="flex space-x-2">
                           <button
                             onClick={() => handleEdit(plan)}
-                            className="text-[11px] px-2 py-1 rounded bg-cendas-primary-50 hover:bg-cendas-primary-100 text-cendas-primary-700 font-medium"
+                            className="text-[11px] px-2 py-1 rounded bg-cp-primary-50 hover:bg-cp-primary-100 text-cp-primary-700 font-medium"
                           >
                             Edit
                           </button>
                           <button
                             onClick={() => handleReplace(plan.id)}
-                            className="text-[11px] px-2 py-1 rounded bg-cendas-neutral-100 hover:bg-cendas-neutral-200 text-cendas-neutral-700 font-medium"
+                            className="text-[11px] px-2 py-1 rounded bg-cp-neutral-100 hover:bg-cp-neutral-200 text-cp-neutral-700 font-medium"
                           >
                             Replace
                           </button>
                           <button
                             onClick={() => handleDelete(plan.id)}
-                            className="text-[11px] px-2 py-1 rounded bg-cendas-danger-50 hover:bg-cendas-danger-100 text-cendas-danger-600 font-medium"
+                            className="text-[11px] px-2 py-1 rounded bg-cp-danger-50 hover:bg-cp-danger-100 text-cp-danger-600 font-medium"
                           >
                             Delete
                           </button>
                         </div>
-                        <div className="text-[10px] text-cendas-neutral-500 font-mono truncate max-w-[90px]">{plan.id.slice(0,10)}...</div>
+                        <div className="text-[10px] text-cp-neutral-500 font-mono truncate max-w-[90px]">{plan.id.slice(0,10)}...</div>
                       </div>
                     </div>
                   </div>

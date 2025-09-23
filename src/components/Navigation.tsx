@@ -47,21 +47,20 @@ export const Navigation: React.FC = () => {
   ];
 
   return (
-    <header className="bg-white shadow-cendas border-b border-cendas-neutral-200">
+    <header className="bg-white shadow-cp border-b border-cp-neutral-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* Cendas Logo and Navigation */}
           <div className="flex items-center space-x-8">
             <Link 
               to="/dashboard" 
-              className="flex items-center space-x-3 text-xl font-bold text-cendas-primary-600 hover:text-cendas-primary-700 transition-colors"
+              className="flex items-center space-x-3 text-xl font-bold text-cp-primary-600 hover:text-cp-primary-700 transition-colors"
             >
-              <div className="w-8 h-8 cendas-gradient-primary rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 cp-gradient-primary rounded-lg flex items-center justify-center">
                 <svg className="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                 </svg>
               </div>
-              <span>Cendas Planner</span>
+              <span>Construction Planner</span>
             </Link>
             
             <nav className="hidden md:flex space-x-1">
@@ -71,8 +70,8 @@ export const Navigation: React.FC = () => {
                   to={item.path}
                   className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                     isActive(item.path)
-                      ? 'bg-cendas-primary-100 text-cendas-primary-700 shadow-sm'
-                      : 'text-cendas-neutral-700 hover:text-cendas-primary-600 hover:bg-cendas-neutral-100'
+                      ? 'bg-cp-primary-100 text-cp-primary-700 shadow-sm'
+                      : 'text-cp-neutral-700 hover:text-cp-primary-600 hover:bg-cp-neutral-100'
                   }`}
                 >
                   {item.icon}
@@ -82,19 +81,18 @@ export const Navigation: React.FC = () => {
             </nav>
           </div>
           
-          {/* User Menu with Cendas styling */}
           <div className="flex items-center space-x-4">
-            <div className="hidden sm:flex items-center space-x-2 text-sm text-cendas-neutral-700">
-              <div className="w-6 h-6 bg-cendas-primary-500 rounded-full flex items-center justify-center">
+            <div className="hidden sm:flex items-center space-x-2 text-sm text-cp-neutral-700">
+              <div className="w-6 h-6 bg-cp-primary-500 rounded-full flex items-center justify-center">
                 <svg className="h-3 w-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
               </div>
-              <span className="font-medium text-cendas-neutral-900">{currentUser.username}</span>
+              <span className="font-medium text-cp-neutral-900">{currentUser.username}</span>
             </div>
             <button
               onClick={handleLogout}
-              className="bg-cendas-neutral-100 hover:bg-cendas-neutral-200 text-cendas-neutral-700 hover:text-cendas-neutral-900 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border border-cendas-neutral-200"
+              className="bg-cp-neutral-100 hover:bg-cp-neutral-200 text-cp-neutral-700 hover:text-cp-neutral-900 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border border-cp-neutral-200"
             >
               Sign Out
             </button>
@@ -102,8 +100,7 @@ export const Navigation: React.FC = () => {
         </div>
       </div>
       
-      {/* Mobile Navigation with Cendas styling */}
-      <div className="md:hidden border-t border-cendas-neutral-200 bg-cendas-neutral-50">
+      <div className="md:hidden border-t border-cp-neutral-200 bg-cp-neutral-50">
         <div className="px-4 py-3 space-y-1">
           {navItems.map((item) => (
             <Link
@@ -111,8 +108,8 @@ export const Navigation: React.FC = () => {
               to={item.path}
               className={`flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                 isActive(item.path)
-                  ? 'bg-cendas-primary-100 text-cendas-primary-700'
-                  : 'text-cendas-neutral-700 hover:text-cendas-primary-600 hover:bg-white'
+                  ? 'bg-cp-primary-100 text-cp-primary-700'
+                  : 'text-cp-neutral-700 hover:text-cp-primary-600 hover:bg-white'
               }`}
             >
               {item.icon}

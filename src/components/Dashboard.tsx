@@ -93,17 +93,15 @@ export const Dashboard: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-cendas-neutral-50">
+    <div className="min-h-screen bg-cp-neutral-50">
       <Navigation />
 
-      {/* Main Content */}
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
-          {/* Hero Section with Cendas branding - improved visibility */}
-          <div className="bg-cendas-primary-500 rounded-lg p-8 text-white mb-8 shadow-lg">
+          <div className="bg-cp-primary-500 rounded-lg p-8 text-white mb-8 shadow-lg">
             <div className="text-center">
               <h1 className="text-3xl font-bold mb-4 text-white">
-                Cendas Construction Planner
+                Construction Planner
               </h1>
               <p className="text-white text-lg mb-6">
                 Professional offline-first construction task management
@@ -149,9 +147,9 @@ export const Dashboard: React.FC = () => {
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* User Info Card */}
-            <div className="bg-white rounded-lg shadow-cendas p-6 border border-cendas-neutral-200">
-              <h3 className="text-lg font-semibold text-cendas-neutral-900 mb-4 flex items-center">
-                <div className="w-8 h-8 bg-cendas-primary-500 rounded-full flex items-center justify-center mr-3">
+            <div className="bg-white rounded-lg shadow-cp p-6 border border-cp-neutral-200">
+              <h3 className="text-lg font-semibold text-cp-neutral-900 mb-4 flex items-center">
+                <div className="w-8 h-8 bg-cp-primary-500 rounded-full flex items-center justify-center mr-3">
                   <svg className="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
@@ -160,20 +158,20 @@ export const Dashboard: React.FC = () => {
               </h3>
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm font-medium text-cendas-neutral-600">Username:</span>
-                  <span className="text-sm text-cendas-neutral-900 font-semibold">{currentUser.username}</span>
+                  <span className="text-sm font-medium text-cp-neutral-600">Username:</span>
+                  <span className="text-sm text-cp-neutral-900 font-semibold">{currentUser.username}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm font-medium text-cendas-neutral-600">User ID:</span>
-                  <span className="text-xs text-cendas-neutral-700 font-mono bg-cendas-neutral-100 px-2 py-1 rounded">{currentUser.id.slice(0, 8)}...</span>
+                  <span className="text-sm font-medium text-cp-neutral-600">User ID:</span>
+                  <span className="text-xs text-cp-neutral-700 font-mono bg-cp-neutral-100 px-2 py-1 rounded">{currentUser.id.slice(0, 8)}...</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm font-medium text-cendas-neutral-600">Created:</span>
-                  <span className="text-sm text-cendas-neutral-900">{new Date(currentUser.createdAt).toLocaleDateString()}</span>
+                  <span className="text-sm font-medium text-cp-neutral-600">Created:</span>
+                  <span className="text-sm text-cp-neutral-900">{new Date(currentUser.createdAt).toLocaleDateString()}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm font-medium text-cendas-neutral-600">Last Login:</span>
-                  <span className="text-xs text-cendas-neutral-700">
+                  <span className="text-sm font-medium text-cp-neutral-600">Last Login:</span>
+                  <span className="text-xs text-cp-neutral-700">
                     {new Date(currentUser.lastLoginAt).toLocaleDateString()}{' '}
                     {new Date(currentUser.lastLoginAt).toLocaleTimeString()}
                   </span>
@@ -184,92 +182,92 @@ export const Dashboard: React.FC = () => {
             {/* Quick Stats Cards */}
             <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
               {/* Completed */}
-              <div className="bg-white rounded-lg shadow-cendas p-6 border border-cendas-neutral-200">
+              <div className="bg-white rounded-lg shadow-cp p-6 border border-cp-neutral-200">
                 <div className="flex items-center">
-                  <div className="w-10 h-10 bg-cendas-success-500 rounded-lg flex items-center justify-center">
+                  <div className="w-10 h-10 bg-cp-success-500 rounded-lg flex items-center justify-center">
                     <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
                   <div className="ml-4">
-                    <p className="text-xs font-medium text-cendas-neutral-600 uppercase tracking-wide">Completed</p>
-                    <p className="text-2xl font-bold text-cendas-neutral-900">{analytics.completed}</p>
-                    <p className="text-xs text-cendas-neutral-500">{analytics.completionPct}% of {analytics.total || 0}</p>
+                    <p className="text-xs font-medium text-cp-neutral-600 uppercase tracking-wide">Completed</p>
+                    <p className="text-2xl font-bold text-cp-neutral-900">{analytics.completed}</p>
+                    <p className="text-xs text-cp-neutral-500">{analytics.completionPct}% of {analytics.total || 0}</p>
                   </div>
                 </div>
               </div>
               {/* In Progress */}
-              <div className="bg-white rounded-lg shadow-cendas p-6 border border-cendas-neutral-200">
+              <div className="bg-white rounded-lg shadow-cp p-6 border border-cp-neutral-200">
                 <div className="flex items-center">
-                  <div className="w-10 h-10 bg-cendas-primary-500 rounded-lg flex items-center justify-center">
+                  <div className="w-10 h-10 bg-cp-primary-500 rounded-lg flex items-center justify-center">
                     <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
                   <div className="ml-4">
-                    <p className="text-xs font-medium text-cendas-neutral-600 uppercase tracking-wide">In Progress</p>
-                    <p className="text-2xl font-bold text-cendas-neutral-900">{analytics.inProgress}</p>
-                    <p className="text-xs text-cendas-neutral-500">Active tasks</p>
+                    <p className="text-xs font-medium text-cp-neutral-600 uppercase tracking-wide">In Progress</p>
+                    <p className="text-2xl font-bold text-cp-neutral-900">{analytics.inProgress}</p>
+                    <p className="text-xs text-cp-neutral-500">Active tasks</p>
                   </div>
                 </div>
               </div>
               {/* Blocked */}
-              <div className="bg-white rounded-lg shadow-cendas p-6 border border-cendas-neutral-200">
+              <div className="bg-white rounded-lg shadow-cp p-6 border border-cp-neutral-200">
                 <div className="flex items-center">
-                  <div className="w-10 h-10 bg-cendas-danger-500 rounded-lg flex items-center justify-center">
+                  <div className="w-10 h-10 bg-cp-danger-500 rounded-lg flex items-center justify-center">
                     <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
                   <div className="ml-4">
-                    <p className="text-xs font-medium text-cendas-neutral-600 uppercase tracking-wide">Blocked</p>
-                    <p className="text-2xl font-bold text-cendas-neutral-900">{analytics.blocked}</p>
-                    <p className="text-xs text-cendas-neutral-500">Need attention</p>
+                    <p className="text-xs font-medium text-cp-neutral-600 uppercase tracking-wide">Blocked</p>
+                    <p className="text-2xl font-bold text-cp-neutral-900">{analytics.blocked}</p>
+                    <p className="text-xs text-cp-neutral-500">Need attention</p>
                   </div>
                 </div>
               </div>
               {/* Final Check */}
-              <div className="bg-white rounded-lg shadow-cendas p-6 border border-cendas-neutral-200">
+              <div className="bg-white rounded-lg shadow-cp p-6 border border-cp-neutral-200">
                 <div className="flex items-center">
-                  <div className="w-10 h-10 bg-cendas-warning-400 rounded-lg flex items-center justify-center">
+                  <div className="w-10 h-10 bg-cp-warning-400 rounded-lg flex items-center justify-center">
                     <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
                   <div className="ml-4">
-                    <p className="text-xs font-medium text-cendas-neutral-600 uppercase tracking-wide">Final Check</p>
-                    <p className="text-2xl font-bold text-cendas-neutral-900">{analytics.finalCheck}</p>
-                    <p className="text-xs text-cendas-neutral-500">Ready to verify</p>
+                    <p className="text-xs font-medium text-cp-neutral-600 uppercase tracking-wide">Final Check</p>
+                    <p className="text-2xl font-bold text-cp-neutral-900">{analytics.finalCheck}</p>
+                    <p className="text-xs text-cp-neutral-500">Ready to verify</p>
                   </div>
                 </div>
               </div>
               {/* Checklist Progress */}
-              <div className="bg-white rounded-lg shadow-cendas p-6 border border-cendas-neutral-200">
+              <div className="bg-white rounded-lg shadow-cp p-6 border border-cp-neutral-200">
                 <div className="flex items-center">
-                  <div className="w-10 h-10 bg-cendas-secondary-500 rounded-lg flex items-center justify-center">
+                  <div className="w-10 h-10 bg-cp-secondary-500 rounded-lg flex items-center justify-center">
                     <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7h18M3 12h18M3 17h18" />
                     </svg>
                   </div>
                   <div className="ml-4">
-                    <p className="text-xs font-medium text-cendas-neutral-600 uppercase tracking-wide">Checklist</p>
-                    <p className="text-2xl font-bold text-cendas-neutral-900">{analytics.checklistCompletionPct}%</p>
-                    <p className="text-xs text-cendas-neutral-500">{analytics.completedChecklistItems}/{analytics.totalChecklistItems} items</p>
+                    <p className="text-xs font-medium text-cp-neutral-600 uppercase tracking-wide">Checklist</p>
+                    <p className="text-2xl font-bold text-cp-neutral-900">{analytics.checklistCompletionPct}%</p>
+                    <p className="text-xs text-cp-neutral-500">{analytics.completedChecklistItems}/{analytics.totalChecklistItems} items</p>
                   </div>
                 </div>
               </div>
               {/* Tasks w/o Checklist */}
-              <div className="bg-white rounded-lg shadow-cendas p-6 border border-cendas-neutral-200">
+              <div className="bg-white rounded-lg shadow-cp p-6 border border-cp-neutral-200">
                 <div className="flex items-center">
-                  <div className="w-10 h-10 bg-cendas-neutral-500 rounded-lg flex items-center justify-center">
+                  <div className="w-10 h-10 bg-cp-neutral-500 rounded-lg flex items-center justify-center">
                     <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h10M4 18h10" />
                     </svg>
                   </div>
                   <div className="ml-4">
-                    <p className="text-xs font-medium text-cendas-neutral-600 uppercase tracking-wide">No Checklist</p>
-                    <p className="text-2xl font-bold text-cendas-neutral-900">{analytics.tasksWithoutChecklist}</p>
-                    <p className="text-xs text-cendas-neutral-500">Of {analytics.total} tasks</p>
+                    <p className="text-xs font-medium text-cp-neutral-600 uppercase tracking-wide">No Checklist</p>
+                    <p className="text-2xl font-bold text-cp-neutral-900">{analytics.tasksWithoutChecklist}</p>
+                    <p className="text-xs text-cp-neutral-500">Of {analytics.total} tasks</p>
                   </div>
                 </div>
               </div>
@@ -279,42 +277,42 @@ export const Dashboard: React.FC = () => {
           {/* Status Distribution & Recent Activity */}
           <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Distribution */}
-            <div className="bg-white rounded-lg shadow-cendas p-6 border border-cendas-neutral-200 lg:col-span-2">
-              <h3 className="text-sm font-semibold text-cendas-neutral-800 mb-4 tracking-wide uppercase">Task Status Distribution</h3>
+            <div className="bg-white rounded-lg shadow-cp p-6 border border-cp-neutral-200 lg:col-span-2">
+              <h3 className="text-sm font-semibold text-cp-neutral-800 mb-4 tracking-wide uppercase">Task Status Distribution</h3>
               <div className="space-y-4">
                 {[
-                  { label: 'Not Started', value: analytics.notStarted, color: 'bg-cendas-neutral-300' },
-                  { label: 'In Progress', value: analytics.inProgress, color: 'bg-cendas-primary-500' },
-                  { label: 'Blocked', value: analytics.blocked, color: 'bg-cendas-danger-500' },
-                  { label: 'Final Check', value: analytics.finalCheck, color: 'bg-cendas-warning-400' },
-                  { label: 'Done', value: analytics.completed, color: 'bg-cendas-success-500' },
+                  { label: 'Not Started', value: analytics.notStarted, color: 'bg-cp-neutral-300' },
+                  { label: 'In Progress', value: analytics.inProgress, color: 'bg-cp-primary-500' },
+                  { label: 'Blocked', value: analytics.blocked, color: 'bg-cp-danger-500' },
+                  { label: 'Final Check', value: analytics.finalCheck, color: 'bg-cp-warning-400' },
+                  { label: 'Done', value: analytics.completed, color: 'bg-cp-success-500' },
                 ].map(row => {
                   const pct = analytics.total ? Math.round((row.value / analytics.total) * 100) : 0;
                   return (
                     <div key={row.label} className="flex items-center">
-                      <div className="w-32 text-xs font-medium text-cendas-neutral-600">{row.label}</div>
-                      <div className="flex-1 h-3 bg-cendas-neutral-100 rounded-full overflow-hidden mr-3">
+                      <div className="w-32 text-xs font-medium text-cp-neutral-600">{row.label}</div>
+                      <div className="flex-1 h-3 bg-cp-neutral-100 rounded-full overflow-hidden mr-3">
                         <div className={`${row.color} h-full transition-all`} style={{ width: pct + '%' }} />
                       </div>
-                      <div className="w-16 text-right text-xs text-cendas-neutral-500">{row.value} ({pct}%)</div>
+                      <div className="w-16 text-right text-xs text-cp-neutral-500">{row.value} ({pct}%)</div>
                     </div>
                   );
                 })}
               </div>
-              <div className="mt-4 text-[11px] text-cendas-neutral-500">Checklist metrics reflect only tasks whose checklist items have been loaded in this session.</div>
+              <div className="mt-4 text-[11px] text-cp-neutral-500">Checklist metrics reflect only tasks whose checklist items have been loaded in this session.</div>
             </div>
             {/* Recent Activity */}
-            <div className="bg-white rounded-lg shadow-cendas p-6 border border-cendas-neutral-200">
-              <h3 className="text-sm font-semibold text-cendas-neutral-800 mb-4 tracking-wide uppercase">Recent Activity</h3>
+            <div className="bg-white rounded-lg shadow-cp p-6 border border-cp-neutral-200">
+              <h3 className="text-sm font-semibold text-cp-neutral-800 mb-4 tracking-wide uppercase">Recent Activity</h3>
               <ul className="space-y-3">
                 {analytics.recentTasks.length === 0 && (
-                  <li className="text-xs text-cendas-neutral-500">No tasks yet.</li>
+                  <li className="text-xs text-cp-neutral-500">No tasks yet.</li>
                 )}
                 {analytics.recentTasks.map(task => (
                   <li key={task.id} className="flex items-start justify-between">
                     <div>
-                      <p className="text-xs font-medium text-cendas-neutral-800">{task.title}</p>
-                      <p className="text-[11px] text-cendas-neutral-500">{task.status} · {new Date(task.updatedAt).toLocaleDateString()} {new Date(task.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                      <p className="text-xs font-medium text-cp-neutral-800">{task.title}</p>
+                      <p className="text-[11px] text-cp-neutral-500">{task.status} · {new Date(task.updatedAt).toLocaleDateString()} {new Date(task.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
                     </div>
                   </li>
                 ))}
@@ -325,12 +323,11 @@ export const Dashboard: React.FC = () => {
           {/* RxDB Data Viewer - Development Only */}
           {process.env.NODE_ENV === 'development' && (
             <div className="mt-8">
-              {/* Emergency Cleanup Button with Cendas styling */}
-              <div className="mb-4 p-4 bg-cendas-warning-50 border border-cendas-warning-200 rounded-lg">
+              <div className="mb-4 p-4 bg-cp-warning-50 border border-cp-warning-200 rounded-lg">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h4 className="text-sm font-semibold text-cendas-warning-800">🛠️ Development Tools</h4>
-                    <p className="text-xs text-cendas-warning-700">Emergency database cleanup for development</p>
+                    <h4 className="text-sm font-semibold text-cp-warning-800">🛠️ Development Tools</h4>
+                    <p className="text-xs text-cp-warning-700">Emergency database cleanup for development</p>
                   </div>
                   <button
                     onClick={() => {
@@ -383,7 +380,7 @@ export const Dashboard: React.FC = () => {
                         eval(script);
                       }
                     }}
-                    className="px-4 py-2 bg-cendas-danger-500 hover:bg-cendas-danger-600 text-white text-sm font-medium rounded-md transition duration-200"
+                    className="px-4 py-2 bg-cp-danger-500 hover:bg-cp-danger-600 text-white text-sm font-medium rounded-md transition duration-200"
                   >
                     🧹 Emergency DB Cleanup
                   </button>

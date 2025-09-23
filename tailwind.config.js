@@ -6,8 +6,7 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Cendas Brand Colors (Professional Construction/Engineering Theme)
-        cendas: {
+        cp: {
           primary: {
             50: '#eff6ff',
             100: '#dbeafe', 
@@ -83,13 +82,25 @@ module.exports = {
         }
       },
       fontFamily: {
-        'cendas': ['Inter', 'system-ui', 'sans-serif'], // Professional font
+        'cp': ['Inter', 'system-ui', 'sans-serif'],
       },
       boxShadow: {
-        'cendas': '0 4px 6px -1px rgba(59, 130, 246, 0.1), 0 2px 4px -1px rgba(59, 130, 246, 0.06)',
-        'cendas-lg': '0 10px 15px -3px rgba(59, 130, 246, 0.1), 0 4px 6px -2px rgba(59, 130, 246, 0.05)',
+        'cp': '0 4px 6px -1px rgba(59, 130, 246, 0.1), 0 2px 4px -1px rgba(59, 130, 246, 0.06)',
+        'cp-lg': '0 10px 15px -3px rgba(59, 130, 246, 0.1), 0 4px 6px -2px rgba(59, 130, 246, 0.05)',
       }
     },
   },
-  plugins: [],
+  plugins: [
+    function({ addUtilities }) {
+      const newUtilities = {
+        '.cp-gradient-primary': {
+          background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+        },
+        '.cp-gradient-secondary': {
+          background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+        },
+      }
+      addUtilities(newUtilities)
+    }
+  ],
 }
