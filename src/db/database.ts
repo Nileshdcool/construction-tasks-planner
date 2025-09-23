@@ -55,8 +55,19 @@ async function createRxDBInstance(): Promise<DatabaseAPI> {
       } else {
         console.log('⚠️ Could not find addRxPlugin or RxDBDevModePlugin functions');
       }
+
+      // Load migration schema plugin for schema migrations
+      const migrationSchemaModule = await import('rxdb/plugins/migration-schema');
+      const RxDBMigrationSchemaPlugin = (migrationSchemaModule as any).RxDBMigrationSchemaPlugin || (migrationSchemaModule as any).default?.RxDBMigrationSchemaPlugin;
+      
+      if (addRxPlugin && RxDBMigrationSchemaPlugin) {
+        addRxPlugin(RxDBMigrationSchemaPlugin);
+        console.log('✅ Migration schema plugin loaded for database migrations');
+      } else {
+        console.log('⚠️ Could not find RxDBMigrationSchemaPlugin');
+      }
     } catch (error) {
-      console.log('⚠️ Could not load dev-mode plugin:', error);
+      console.log('⚠️ Could not load plugins:', error);
     }
     
     // Dynamic import to avoid TypeScript compilation issues
@@ -158,7 +169,19 @@ async function createRxDBInstance(): Promise<DatabaseAPI> {
         schema: checklistItemSchema
       },
       floorPlans: {
-        schema: floorPlanSchema
+        schema: floorPlanSchema,
+        migrationStrategies: {
+          // Migration from version 0 to version 1
+          1: function (oldDoc: any) {
+            // Add new fields with default values
+            const newDoc = { ...oldDoc };
+            newDoc.description = oldDoc.description || '';
+            newDoc.updatedAt = oldDoc.updatedAt || oldDoc.uploadedAt;
+            newDoc.tags = oldDoc.tags || [];
+            newDoc.version = oldDoc.version || 1;
+            return newDoc;
+          }
+        }
       }
     });
     
@@ -489,8 +512,10 @@ export async function deleteChecklistItem(itemId: string) {
 export async function createFloorPlan(floorPlanData: {
   userId: string;
   name: string;
+  description?: string;
   imageUrl: string;
   imageFileName: string;
+  tags?: string[];
 }) {
   const db = await getDatabase();
   const now = new Date().toISOString();
@@ -510,10 +535,14 @@ export async function createFloorPlan(floorPlanData: {
     id,
     userId: floorPlanData.userId,
     name: floorPlanData.name,
+    description: floorPlanData.description || '',
     imageUrl: floorPlanData.imageUrl,
     imageFileName: floorPlanData.imageFileName,
     uploadedAt: now,
+    updatedAt: now,
     isActive: true,
+    tags: floorPlanData.tags || [],
+    version: 1,
   });
 }
 
@@ -578,7 +607,38 @@ export async function renameFloorPlan(floorPlanId: string, name: string) {
   const db = await getDatabase();
   const plan = await db.floorPlans.findOne({ selector: { id: floorPlanId } }).exec();
   if (plan) {
-    return plan.incrementalPatch({ name });
+    const now = new Date().toISOString();
+    const currentVersion = plan.version || 1;
+    return plan.incrementalPatch({ 
+      name, 
+      updatedAt: now,
+      version: currentVersion + 1
+    });
+  }
+  return null;
+}
+
+// Update floor plan metadata (description, tags, etc.)
+export async function updateFloorPlanMetadata(floorPlanId: string, updates: {
+  name?: string;
+  description?: string;
+  tags?: string[];
+}) {
+  const db = await getDatabase();
+  const plan = await db.floorPlans.findOne({ selector: { id: floorPlanId } }).exec();
+  if (plan) {
+    const now = new Date().toISOString();
+    const currentVersion = plan.version || 1;
+    const updateData: any = {
+      updatedAt: now,
+      version: currentVersion + 1
+    };
+    
+    if (updates.name !== undefined) updateData.name = updates.name;
+    if (updates.description !== undefined) updateData.description = updates.description;
+    if (updates.tags !== undefined) updateData.tags = updates.tags;
+    
+    return plan.incrementalPatch(updateData);
   }
   return null;
 }
@@ -588,7 +648,14 @@ export async function replaceFloorPlanImage(floorPlanId: string, imageUrl: strin
   const db = await getDatabase();
   const plan = await db.floorPlans.findOne({ selector: { id: floorPlanId } }).exec();
   if (plan) {
-    return plan.incrementalPatch({ imageUrl, imageFileName });
+    const now = new Date().toISOString();
+    const currentVersion = plan.version || 1;
+    return plan.incrementalPatch({ 
+      imageUrl, 
+      imageFileName,
+      updatedAt: now,
+      version: currentVersion + 1
+    });
   }
   return null;
 }

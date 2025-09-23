@@ -7,17 +7,22 @@ import {
   setActiveFloorPlan,
   deleteFloorPlan,
   renameFloorPlan,
-  replaceFloorPlanImage
+  replaceFloorPlanImage,
+  updateFloorPlanMetadata
 } from '../db/database';
 
 export interface FloorPlan {
   id: string;
   userId: string;
   name: string;
+  description?: string;
   imageUrl: string;
   imageFileName: string;
   uploadedAt: string;
+  updatedAt: string;
   isActive: boolean;
+  tags?: string[];
+  version?: number;
 }
 
 interface FloorPlanState {
@@ -30,11 +35,12 @@ interface FloorPlanState {
   // Actions
   loadUserFloorPlans: (userId: string) => Promise<void>;
   loadActiveFloorPlan: (userId: string) => Promise<void>;
-  uploadFloorPlan: (userId: string, name: string, imageFile: File) => Promise<FloorPlan | null>;
+  uploadFloorPlan: (userId: string, name: string, imageFile: File, description?: string, tags?: string[]) => Promise<FloorPlan | null>;
   setActiveFloorPlanById: (floorPlanId: string, userId: string) => Promise<void>;
   removeFloorPlan: (floorPlanId: string) => Promise<void>;
   rename: (floorPlanId: string, name: string) => Promise<void>;
   replaceImage: (floorPlanId: string, imageFile: File) => Promise<void>;
+  updateMetadata: (floorPlanId: string, updates: { name?: string; description?: string; tags?: string[] }) => Promise<void>;
   
   // Utility actions
   clearError: () => void;
@@ -89,7 +95,7 @@ export const useFloorPlanStore = create<FloorPlanState>()(
       },
 
       // Upload a new floor plan
-      uploadFloorPlan: async (userId: string, name: string, imageFile: File) => {
+      uploadFloorPlan: async (userId: string, name: string, imageFile: File, description?: string, tags?: string[]) => {
         set({ isLoading: true, error: null });
         
         try {
@@ -99,8 +105,10 @@ export const useFloorPlanStore = create<FloorPlanState>()(
           const newFloorPlanDoc = await createFloorPlan({
             userId,
             name,
+            ...(description ? { description } : {}),
             imageUrl: base64Image, // Store as base64
-            imageFileName: imageFile.name
+            imageFileName: imageFile.name,
+            ...(tags ? { tags } : {})
           });
           
           const newFloorPlan = newFloorPlanDoc.toJSON();
@@ -220,6 +228,22 @@ export const useFloorPlanStore = create<FloorPlanState>()(
         } catch (error) {
           console.error('Error replacing floor plan image:', error);
           set({ error: error instanceof Error ? error.message : 'Failed to replace floor plan image', isLoading: false });
+        }
+      },
+
+      // Update floor plan metadata
+      updateMetadata: async (floorPlanId: string, updates: { name?: string; description?: string; tags?: string[] }) => {
+        set({ isLoading: true, error: null });
+        try {
+          await updateFloorPlanMetadata(floorPlanId, updates);
+          set(state => ({
+            floorPlans: state.floorPlans.map(fp => fp.id === floorPlanId ? { ...fp, ...updates } : fp),
+            activeFloorPlan: state.activeFloorPlan?.id === floorPlanId ? { ...state.activeFloorPlan, ...updates } : state.activeFloorPlan,
+            isLoading: false
+          }));
+        } catch (error) {
+          console.error('Error updating floor plan metadata:', error);
+          set({ error: error instanceof Error ? error.message : 'Failed to update floor plan metadata', isLoading: false });
         }
       },
 

@@ -324,12 +324,6 @@ export const TaskBoardView: React.FC = () => {
                 onClick={() => handleAddTask('not-started')}
                 className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-200"
               >+ New Task</button>
-              <button className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-md text-sm font-medium transition duration-200">
-                Filter
-              </button>
-              <button className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-md text-sm font-medium transition duration-200">
-                Sort
-              </button>
             </div>
             
             <div className="flex items-center space-x-4">
