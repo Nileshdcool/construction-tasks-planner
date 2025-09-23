@@ -8,13 +8,13 @@ Construction Planner is a comprehensive React-based application designed for con
 
 ### Key Features (MVP)
 
-- **📋 Essential Task Management**: Create, update, and track construction tasks with basic statuses
-- **🏠 Basic Floor Plans**: Upload floor plan images and click to add tasks at specific locations
-- **✅ Simple Checklists**: Basic checklist functionality for task completion tracking
-- **📊 Basic Dashboard**: Simple task counts and completion statistics
-- **👤 Simple Authentication**: Username-based login system
-- **💾 Offline-First Storage**: Local data persistence using browser storage
-- **📱 Responsive Layout**: Basic mobile-friendly design
+- **📋 Essential Task Management**: Create, update, and track construction tasks with statuses (`not-started`, `in-progress`, `blocked`, `final-check`, `done`). Tasks support position (x, y) for floor plan placement and are linked to users and plans.
+- **🏠 Floor Plans**: Upload floor plan images, set active plans, and position tasks directly on plans. Floor plans support metadata, tags, and image replacement.
+- **✅ Checklists**: Each task supports a checklist with default and custom items. Checklist items have status, ordering, and completion tracking.
+- **📊 Dashboard & Analytics**: View project statistics, status distribution, recent activity, and checklist progress. Admin users get emergency DB cleanup tools in development mode.
+- **👤 Authentication**: Username-based login system. Admin users (username: "admin") have access to development tools.
+- **💾 Offline-First Storage**: Local data persistence using RxDB, IndexedDB, and Dexie. Zustand persistent storage for floor plans.
+- **📱 Responsive Layout**: Mobile-friendly design with Tailwind CSS.
 
 ## 🚀 Getting Started
 
@@ -73,18 +73,20 @@ The build artifacts will be stored in the `build/` directory.
 
 ### 4. Checklist System
 - Every task automatically gets default checklist items:
-  - "Review project requirements and specifications"
-  - "Gather necessary materials and tools"
-  - "Set up workspace and safety measures"
-- Add custom checklist items with different statuses
+   - "Review project requirements and specifications"
+   - "Gather necessary materials and tools"
+   - "Set up workspace and safety measures"
+- Add custom checklist items with status and ordering
 - Track completion progress with visual indicators
 - Celebration animation when all items are completed
 
 ### 5. Floor Plan Integration
 - Upload floor plan images through the Plans page
+- Set active floor plans and manage metadata/tags
 - Position tasks directly on floor plans by clicking
 - Visual task markers with status-based color coding
 - Interactive tooltips showing task details
+- Replace floor plan images and update metadata/tags
 
 ### 6. Navigation
 - **Dashboard**: Overview and analytics
@@ -100,8 +102,8 @@ The build artifacts will be stored in the `build/` directory.
 - **React Router 7.9.1**: Client-side routing
 
 ### State Management
-- **Zustand 5.0.8**: Lightweight state management
-- **Persistent storage**: Browser-based state persistence
+- **Zustand 5.0.8**: Lightweight state management for tasks, floor plans, and authentication
+- **Persistent storage**: Zustand persistent storage for floor plans
 
 ### Database & Offline Storage
 - **RxDB 16.19.0**: Reactive offline-first database with modular service architecture
@@ -123,6 +125,7 @@ The build artifacts will be stored in the `build/` directory.
 - **React Scripts 5.0.1**: Build tooling and development server
 - **Jest**: Testing framework
 - **React Testing Library**: Component testing utilities
+- **Emergency DB Cleanup**: Admin users in development mode can clear all database data and reload the app
 
 ## ⏱️ Development Time Estimates (Streamlined MVP)
 
@@ -230,7 +233,7 @@ src/
 │   ├── database.ts    # Legacy compatibility layer
 │   └── index.ts       # Main database exports
 ├── pages/             # Page components
-├── store/             # Zustand stores
+├── store/             # Zustand stores (tasks, floor plans, auth)
 ├── types/             # TypeScript type definitions
 ├── utils/             # Utility functions
 └── App.tsx           # Main application component
@@ -254,16 +257,16 @@ The database is organized into domain-specific services:
 
 #### **📁 Services (`db/services/`)**
 - **`userService.ts`**: User authentication, profile management
-- **`taskService.ts`**: Task creation, updates, deletion, status management
-- **`checklistService.ts`**: Checklist item operations, progress tracking
-- **`floorPlanService.ts`**: Floor plan upload, management, task positioning
+- **`taskService.ts`**: Task creation, updates, deletion, status management, position for floor plan
+- **`checklistService.ts`**: Checklist item operations, progress tracking, status, and ordering
+- **`floorPlanService.ts`**: Floor plan upload, management, task positioning, metadata/tags, image replacement
 
 #### **📁 Schemas (`db/schemas/`)**
 - **`user.ts`**: User data structure and validation
 - **`task.ts`**: Task and checklist item schemas
 - **`floorPlan.ts`**: Floor plan metadata and validation
 
-### **Usage Examples**
+### Usage Examples
 
 ```typescript
 // Import all database functions
@@ -294,5 +297,4 @@ import { createTask } from '../db/database';
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.construction-tasks-planner
-offline-first Web-App where users can create “construction tasks” on a floor-plan
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
