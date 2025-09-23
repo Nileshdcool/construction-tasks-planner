@@ -7,12 +7,13 @@ import {
   getChecklistItemsByTaskId,
   updateChecklistItemCompleted,
   updateChecklistItemStatus,
+  updateChecklistItemTitle,
   deleteChecklistItem,
   updateTaskFields
 } from '../db/database';
 
 export type TaskStatus = 'not-started' | 'in-progress' | 'blocked' | 'final-check' | 'done';
-export type ChecklistItemStatus = 'not-started' | 'blocked' | 'final-installation' | 'done' | string;
+export type ChecklistItemStatus = 'not-started' | 'in-progress' | 'blocked' | 'final-check' | 'done' | string;
 
 export interface ChecklistItem {
   id: string;
@@ -65,6 +66,7 @@ interface TaskState {
   addChecklistItem: (taskId: string, title: string, status?: ChecklistItemStatus) => Promise<ChecklistItem | null>;
   updateChecklistItemStatus: (itemId: string, status: ChecklistItemStatus) => Promise<void>;
   toggleChecklistItem: (itemId: string, completed: boolean) => Promise<void>;
+  editChecklistItem: (itemId: string, newTitle: string) => Promise<void>;
   removeChecklistItem: (itemId: string) => Promise<void>;
   loadTaskChecklist: (taskId: string) => Promise<ChecklistItem[]>;
   
@@ -225,6 +227,28 @@ export const useTaskStore = create<TaskState>()(
           console.error('Error updating checklist item:', error);
           set({ 
             error: error instanceof Error ? error.message : 'Failed to update checklist item'
+          });
+        }
+      },
+
+      editChecklistItem: async (itemId, newTitle) => {
+        set({ error: null });
+        
+        try {
+          await updateChecklistItemTitle(itemId, newTitle);
+          
+          set(state => ({
+            checklistItems: state.checklistItems.map(item => {
+              if (item.id === itemId) {
+                return { ...item, title: newTitle, updatedAt: new Date().toISOString() };
+              }
+              return item;
+            })
+          }));
+        } catch (error) {
+          console.error('Error editing checklist item:', error);
+          set({ 
+            error: error instanceof Error ? error.message : 'Failed to edit checklist item'
           });
         }
       },

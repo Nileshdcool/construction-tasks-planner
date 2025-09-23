@@ -152,6 +152,14 @@ export const TaskBoardView: React.FC = () => {
     taskStore.updateChecklistItemStatus(itemId, status);
   }, [taskStore]);
 
+  const handleEditChecklistItem = useCallback((itemId: string, newTitle: string) => {
+    taskStore.editChecklistItem(itemId, newTitle);
+  }, [taskStore]);
+
+  const handleDeleteChecklistItem = useCallback((itemId: string) => {
+    taskStore.removeChecklistItem(itemId);
+  }, [taskStore]);
+
 
   const handleAddTask = useCallback((status: TaskStatus) => {
     setPreselectedStatus(status);
@@ -303,6 +311,8 @@ export const TaskBoardView: React.FC = () => {
         onAddChecklistItem={handleAddChecklistItem}
         onToggleChecklistItem={handleToggleChecklistItem}
         onUpdateChecklistItemStatus={handleUpdateChecklistItemStatus}
+        onEditChecklistItem={handleEditChecklistItem}
+        onDeleteChecklistItem={handleDeleteChecklistItem}
       />
       <TaskCreationModal
         isOpen={showCreateModal}

@@ -11,8 +11,9 @@ interface ChecklistItemStatusSelectorProps {
 // Predefined statuses with their display labels and colors
 export const PREDEFINED_STATUSES = [
   { value: 'not-started', label: 'Not Started', color: 'gray' },
+  { value: 'in-progress', label: 'In Progress', color: 'blue' },
   { value: 'blocked', label: 'Blocked', color: 'red' },
-  { value: 'final-installation', label: 'Final Installation', color: 'amber' },
+  { value: 'final-check', label: 'Final Check Awaiting', color: 'amber' },
   { value: 'done', label: 'Done', color: 'green' }
 ] as const;
 
@@ -104,6 +105,7 @@ export const ChecklistItemStatusSelector: React.FC<ChecklistItemStatusSelectorPr
 function getSelectedClasses(color: string): string {
   const colorMap = {
     gray: 'bg-gray-100 border-gray-400 text-gray-800',
+    blue: 'bg-blue-50 border-blue-400 text-blue-800',
     red: 'bg-red-50 border-red-400 text-red-800',
     amber: 'bg-amber-50 border-amber-400 text-amber-800',
     green: 'bg-green-50 border-green-400 text-green-800'
@@ -114,6 +116,7 @@ function getSelectedClasses(color: string): string {
 function getUnselectedClasses(color: string): string {
   const colorMap = {
     gray: 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50',
+    blue: 'bg-white border-gray-300 text-gray-700 hover:bg-blue-50',
     red: 'bg-white border-gray-300 text-gray-700 hover:bg-red-50',
     amber: 'bg-white border-gray-300 text-gray-700 hover:bg-amber-50',
     green: 'bg-white border-gray-300 text-gray-700 hover:bg-green-50'

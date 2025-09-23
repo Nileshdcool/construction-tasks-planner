@@ -375,7 +375,8 @@ export async function createTask(taskData: {
   const now = new Date().toISOString();
   const id = `task_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   
-  return db.tasks.insert({
+  // Create the task
+  const task = await db.tasks.insert({
     id,
     title: taskData.title,
     description: taskData.description,
@@ -386,6 +387,22 @@ export async function createTask(taskData: {
     createdAt: now,
     updatedAt: now,
   });
+
+  // Import and create default checklist items
+  const { getDefaultChecklistItems } = await import('../utils/defaultChecklist');
+  const defaultItems = getDefaultChecklistItems();
+  
+  // Create default checklist items for the new task
+  for (const item of defaultItems) {
+    await createChecklistItem({
+      taskId: id,
+      title: item.title,
+      status: item.status,
+      order: item.order
+    });
+  }
+  
+  return task;
 }
 
 export async function getTasksByUserId(userId: string, planId?: string) {
@@ -530,6 +547,19 @@ export async function updateChecklistItemStatus(itemId: string, status: string) 
     updates.completed = status === 'done';
     
     return item.incrementalPatch(updates);
+  }
+  return null;
+}
+
+export async function updateChecklistItemTitle(itemId: string, title: string) {
+  const db = await getDatabase();
+  const item = await db.checklistItems.findOne({
+    selector: { id: itemId }
+  }).exec();
+  
+  if (item) {
+    const now = new Date().toISOString();
+    return item.incrementalPatch({ title, updatedAt: now });
   }
   return null;
 }

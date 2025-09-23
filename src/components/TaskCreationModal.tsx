@@ -250,11 +250,13 @@ export const TaskCreationModal: React.FC<TaskCreationModalProps> = ({
                           Add
                         </button>
                       </div>
-                      <ChecklistList
-                        items={checklist.map(title => ({ title }))}
-                        mode="create"
-                        onRemoveTempItem={(idx) => setChecklist(checklist.filter((_, i) => i !== idx))}
-                      />
+                      <div className="max-h-48 overflow-y-auto border border-gray-100 rounded-md">
+                        <ChecklistList
+                          items={checklist.map(title => ({ title }))}
+                          mode="create"
+                          onRemoveTempItem={(idx) => setChecklist(checklist.filter((_, i) => i !== idx))}
+                        />
+                      </div>
                     </div>
                   )}
                 </div>

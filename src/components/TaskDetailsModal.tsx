@@ -14,6 +14,8 @@ interface TaskDetailsModalProps {
   onAddChecklistItem: (title: string, status?: ChecklistItemStatus) => void;
   onToggleChecklistItem: (itemId: string, completed: boolean) => void;
   onUpdateChecklistItemStatus?: (itemId: string, status: ChecklistItemStatus) => void;
+  onEditChecklistItem?: (itemId: string, newTitle: string) => void;
+  onDeleteChecklistItem?: (itemId: string) => void;
 }
 
 
@@ -25,6 +27,8 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
   onAddChecklistItem,
   onToggleChecklistItem,
   onUpdateChecklistItemStatus,
+  onEditChecklistItem,
+  onDeleteChecklistItem,
 }) => {
   const floorPlans = useUserFloorPlans();
   const [newItem, setNewItem] = React.useState('');
@@ -203,12 +207,16 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
                         </div>
                       )}
                     </div>
-                    <ChecklistList
-                      items={checklist}
-                      mode="view"
-                      onToggleItem={(id, completed) => onToggleChecklistItem(id, completed)}
-                      {...(onUpdateChecklistItemStatus ? { onUpdateItemStatus: onUpdateChecklistItemStatus } : {})}
-                    />
+                    <div className="max-h-64 overflow-y-auto border border-gray-100 rounded-md">
+                      <ChecklistList
+                        items={checklist}
+                        mode="view"
+                        onToggleItem={(id, completed) => onToggleChecklistItem(id, completed)}
+                        {...(onUpdateChecklistItemStatus ? { onUpdateItemStatus: onUpdateChecklistItemStatus } : {})}
+                        {...(onEditChecklistItem ? { onEditItem: onEditChecklistItem } : {})}
+                        {...(onDeleteChecklistItem ? { onDeleteItem: onDeleteChecklistItem } : {})}
+                      />
+                    </div>
                   </div>
                 )}
               </div>
